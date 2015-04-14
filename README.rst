@@ -17,7 +17,7 @@ Instructions:
 -------------
 
 * update loginCredentials with your Seamless username and password.
-* run `grablunch.sh` before 10:00 AM
+* run `grablunch.py` before 10:00 AM
 * enjoy your meal at lunch time
 
 Contributors:
