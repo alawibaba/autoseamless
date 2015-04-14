@@ -7,23 +7,7 @@ loginCredentials=`cat loginCredentials`
 
 BASEURL="https://www.seamless.com/"
 #
-wk=`date +"%w"`
-if [ $wk -eq 1 ] ; then
-  wk="Monday"
-elif [ $wk -eq 2 ] ; then
-  wk="Tuesday"
-elif [ $wk -eq 3 ] ; then
-  wk="Wednesday"
-elif [ $wk -eq 4 ] ; then
-  wk="Thursday"
-elif [ $wk -eq 5 ] ; then
-  wk="Friday"
-elif [ $wk -eq 6 ] ; then
-  wk="Saturday"
-else 
-  wk="Sunday"
-fi
-#
+wk=`date +"%A"`
 year=`date +"%Y"`
 #
 echo "Today is $wk. Let's see if we need to order anything..."
