@@ -20,7 +20,6 @@ loginCredentials=open("loginCredentials").readlines()[0].strip()
 BASEURL="https://www.seamless.com/"
 #
 wk=datetime.datetime.now().strftime("%A")
-wk="Wednesday"
 year=datetime.datetime.now().year
 #
 print "Today is %s. Let's see if we need to order anything..." % wk
