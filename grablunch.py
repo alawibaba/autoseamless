@@ -107,7 +107,7 @@ class SeamlessBrowser:
 
     def addItemToOrder(self, desiredItem):
         itemUrlRE = re.compile("MealsMenuSelectionPopup.m[^']*'")
-        match = itemUrlRE.search(desiredItem)
+        match = itemUrlRE.search(desiredItem['href'])
         if match is None:
             log("We ran into trouble parsing the item URL. Giving up!")
             return False
@@ -122,7 +122,7 @@ class SeamlessBrowser:
             self.orderID) + "&".join(
             [
                 x for x in map(
-                    lambda x: 'name' in x and 'value' in x and "29~0%s=%s" %
+                    lambda x: x.has_key('name') and x.has_key('value') and "29~0%s=%s" %
                     (x['name'], x['value']), parsedItemPage.find('form')('input')) if x])
 
         addItemResponse = self.request(
@@ -139,6 +139,7 @@ class SeamlessBrowser:
                     'input',
                     id='price')['value'].split("$")))
         self.totalPrice += itemPrice
+        self.log("Successfully added " + desiredItem.text)
         return True
 
     def selectItems(self, itemSelector):
@@ -147,7 +148,7 @@ class SeamlessBrowser:
             self.log("No items selected!")
             return False
         for desiredItem in desiredItemCandidates:
-            if not self.addItemToOrder(desiredItem['href']):
+            if not self.addItemToOrder(desiredItem):
                 return False
         return True
 
@@ -156,7 +157,7 @@ class SeamlessBrowser:
         alloc = "%.2f" % (self.totalPrice * 1.1)
         year = datetime.datetime.now().year
 
-        pdata = "goToCheckout=NO&TotalAlloc=%s00&LineId=&saveFavoriteCommand=Checkout.m&WhichPage=Meals&favoriteNameOriginal=&firstCheckOut=Y&acceptedBudgetWarning=N&AcceptedWarnings=N&acceptedFavoriteWarning=N&FavoriteSaved=N&UserSearchType=&ShowAddUser=N&deliveryType=Delivery&EcoToGoOrderId=%s&EcoToGoUserId=%s&OverageAllocationAmt=0&InfoPopupfavorite_name=&InfoPopupfavorite_saveType=&InfoPopupfavorite_orderId=%s&AllocationAmt1=%s&FirstName=&LastName=&NewAllocationAmt=&totalAllocated=$%s&AllocationComment=&typeOfCreditCard=&creditCardNumber=&CCExpireMonth=1&CCExpireYear=%d&creditCardZipCode=&CreditCardCVV=&OrderIdClicked=%s&FloorRoom=9&phoneNumber=%s&DeliveryComment=&EcoToGoOrder=Y&InfoPopup_name=Namethisfavorite&favoriteSaveMode=successWithOrderingMeals" % (
+        pdata = "goToCheckout=NO&TotalAlloc=%s00&LineId=&saveFavoriteCommand=Checkout.m&WhichPage=Meals&favoriteNameOriginal=&firstCheckOut=Y&acceptedBudgetWarning=N&AcceptedWarnings=N&acceptedFavoriteWarning=N&FavoriteSaved=N&UserSearchType=&ShowAddUser=N&deliveryType=Delivery&EcoToGoOrderId=%s&EcoToGoUserId=%s&OverageAllocationAmt=0&InfoPopupfavorite_name=&InfoPopupfavorite_saveType=&InfoPopupfavorite_orderId=%s&AllocationAmt1=%s&FirstName=&LastName=&NewAllocationAmt=&allocCount=1&totalAllocated=$%s&AllocationComment=&typeOfCreditCard=&creditCardNumber=&CCExpireMonth=1&CCExpireYear=%d&creditCardZipCode=&CreditCardCVV=&saveCreditCardInfo=&ccClicked=no&ccTextChange=no&savedCCNumber=&savedCCType=&currentType=&OrderIdClicked=%s&FloorRoom=9&phoneNumber=%s&DeliveryComment=&EcoToGoOrder=Y&InfoPopup_name=Namethisfavorite&favoriteSaveMode=successWithOrderingMeals" % (
             alloc, self.orderID, self.userID, self.orderID, alloc, alloc, year, self.orderID, phoneNumber)
 
         checkoutResponse = self.request(
@@ -166,7 +167,7 @@ class SeamlessBrowser:
         parsedCheckoutResponse = BeautifulSoup.BeautifulSoup(checkoutResponse)
 
         thanksMessage = [x for x in parsedCheckoutResponse(
-            'div') if 'class' in x and "ThanksForOrder" in x['class']]
+            'div') if x.has_key('class') and "ThanksForOrder" in x['class']]
         if len(thanksMessage) < 1:
             self.log(
                 "Looks like the order failed for some reason -- probably exceeded the meal allowance.")
@@ -208,39 +209,40 @@ class SeamlessBrowser:
 
         return 0
 
+def iSelect(choices):
+    for idx, choice in zip(range(len(choices)), choices):
+        print idx, choice.text
+    idx = -1
+    while idx < 0 or idx >= len(choices):
+        print "Please enter an integer between 0 and %d (inclusive)." % (len(choices) - 1)
+        try:
+            idx = int(raw_input("Select> "))
+        except ValueError:
+            idx = -1
+    return [choices[idx]]
+
+def niSelect(itemRE):
+    def currySelect(choices):
+        rvalue = []
+        for choice in choices:
+            if itemRE.search(choice.text):
+                rvalue.append(choice)
+        return rvalue
+    return currySelect
+
 rvalue = None
 if __name__ == "__main__":
     def log(msg):
         print msg
 
-    def iSelect(choices):
-        for idx, choice in zip(range(len(choices)), choices):
-            print idx, choice.text
-        idx = -1
-        while idx < 0 or idx >= len(choices):
-            print "Please enter an integer between 0 and %d (inclusive)." % (len(choices) - 1)
-            try:
-                idx = int(raw_input("Select> "))
-            except ValueError:
-                idx = -1
-        return [choices[idx]]
-
-    def niSelect(itemRE):
-        def currySelect(choices):
-            rvalue = []
-            for choice in choices:
-                if itemRE.search(choice.text):
-                    rvalue.append(choice)
-            return rvalue
-        return currySelect
-    loginCredentials = open("loginCredentials").readlines()[0].strip()
+    loginCredentials = open("alawi").readlines()[0].strip()
     sys.exit(
         SeamlessBrowser(log).order(
             loginCredentials,
             "(617)555-3000",
             niSelect(
-                re.compile("Tossed")),
+                re.compile("Viva Burrito")),
             niSelect(
-                re.compile("Cayenne Shrimp Salad")),
-            dryRun=True,
+                re.compile("Plain Quesadilla with Salsa Fresca|Chips with Salsa$")),
+            dryRun=False,
             wk="Thursday"))
