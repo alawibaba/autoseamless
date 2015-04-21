@@ -116,13 +116,6 @@ class SeamlessBrowser:
         itemPage = self.request(itemUrl)
         parsedItemPage = BeautifulSoup.BeautifulSoup(itemPage)
 
-# -- pass a list of options
-# ---- need to send a list of options
-# ---- options are given with ids which are key_value pairs
-# ---- {key_value: {label: , price: , included: , groupName: , groupLabel: }}
-# -- compute the price
-# -- select the item and add it to the order
-
         formDefaults = {} ; allOptions = {}
         radioButtons = [] ; checkBoxes = []
         for inp in parsedItemPage.find(id='popup')('input'):
@@ -159,12 +152,6 @@ class SeamlessBrowser:
             except KeyError:
               # TODO is this worth a warning message?
               pass
-
-#        for key in allOptions.keys():
-#          print key
-#          for k in allOptions[key].keys():
-#            print "", k, allOptions[key][k]
-#        print formDefaults
 
         originalPriceMatch = re.compile("originalPrice = '([.0-9]*)';").search(itemPage)
         if originalPriceMatch is None:
@@ -217,12 +204,12 @@ class SeamlessBrowser:
         self.log("total price = %f" % self.totalPrice)
         return True
 
-    def selectItems(self, itemSelector, optionSelector=None):
-        desiredItemCandidates = itemSelector(self.menu)
+    def selectItems(self, itemSelector):
+        desiredItemCandidates = itemSelector(self.menu, True)
         if len(desiredItemCandidates) == 0:
             self.log("No items selected!")
             return False
-        for desiredItem in desiredItemCandidates:
+        for desiredItem, optionSelector in desiredItemCandidates:
             if not self.addItemToOrder(desiredItem, optionSelector):
                 return False
         return True
@@ -248,7 +235,6 @@ class SeamlessBrowser:
                 "Looks like the order failed for some reason -- probably exceeded the meal allowance.")
 	    alertMessage = [x.text for x in parsedCheckoutResponse('div') if x.has_key('class') and "warningNote" in x['class']]
             self.log("\n".join(alertMessage))
-            xx = open("/tmp/debug", "w") ; xx.write(checkoutResponse) ; xx.close()
             return False
 
         thanksMessage = thanksMessage[0]
@@ -264,7 +250,6 @@ class SeamlessBrowser:
             phoneNumber,
             restaurantSelector,
             itemSelector,
-            optionSelector=None,
             dryRun=False,
             wk=None):
         wk = wk or datetime.datetime.now().strftime("%A")
@@ -279,7 +264,7 @@ class SeamlessBrowser:
             return 2
 
         # select items, add them to the cart
-        if not self.selectItems(itemSelector, optionSelector):
+        if not self.selectItems(itemSelector):
             return 3
 
         if not dryRun:
@@ -288,9 +273,9 @@ class SeamlessBrowser:
 
         return 0
 
-def iSelect(choices):
-    for idx, choice in zip(range(len(choices)), choices):
-        print idx, choice.text
+def iSelectBasic(choices, labels):
+    for idx in xrange(len(choices)):
+        print idx, labels[idx]
     idx = -1
     while idx < 0 or idx >= len(choices):
         print "Please enter an integer between 0 and %d (inclusive)." % (len(choices) - 1)
@@ -298,14 +283,85 @@ def iSelect(choices):
             idx = int(raw_input("Select> "))
         except ValueError:
             idx = -1
-    return [choices[idx]]
+    return choices[idx]
 
-def niSelect(itemRE):
-    def currySelect(choices):
+def iSelectMulti(choices, labels):
+    for idx in xrange(len(choices)):
+        print idx, labels[idx]
+    idx = []
+    while True:
+        print "Please enter a list of integers between 0 and %d (inclusive)." % (len(choices) - 1)
+        idxList = raw_input("Select> ")
+        if idxList.strip() == "":
+            return []
+        try:
+            return map(lambda k: choices[k], map(int, idxList.split(",")))
+        except ValueError:
+            pass
+        except KeyError:
+            pass
+
+def iSelect(choices, optionSelector=False):
+    def iOptions(allOptions):
+      rvalue = {}
+      optionGroups = {}
+      for optId in allOptions.keys():
+        groupId = optId.split("_")[0]
+        try:
+          optionGroups[groupId][1].append(optId)
+        except KeyError:
+          optionGroups[groupId] = (allOptions[optId]['type'], [optId])
+      optionGroupKeys = optionGroups.keys()
+      optionGroupKeys.sort()
+      for optionGroupKey in optionGroupKeys:
+        inpType, inpIds = optionGroups[optionGroupKey]
+        if inpType == "hidden":
+          continue
+        elif inpType == "text":
+          for inpId in inpIds:
+            try:
+              print allOptions[inpIds[0]]['label']
+              val = raw_input("> ")
+              rvalue[inpId] = val
+            except KeyError:
+              continue
+        elif inpType == "radio":
+          print "Please select one."
+          choices = [] ; labels = []
+          for idx, inpId in zip(range(len(inpIds)), inpIds):
+            try:
+              labels.append(allOptions[inpId]['label'])
+              choices.append(inpId)
+            except KeyError:
+              continue
+          inpId = iSelectBasic(choices, labels)
+          rvalue[allOptions[inpId]['name']] = allOptions[inpId]['value']
+        elif inpType == "checkbox":
+          print "Please select as many as you like (separate by commas)."
+          choices = [] ; labels = []
+          for idx, inpId in zip(range(len(inpIds)), inpIds):
+            try:
+              labels.append(allOptions[inpId]['label'])
+              choices.append(inpId)
+            except KeyError:
+              continue
+          selectedInpIds = iSelectMulti(choices, labels)
+          for inpId in selectedInpIds:
+            rvalue[allOptions[inpId]['name']] = allOptions[inpId]['value']
+      return rvalue
+    choice = iSelectBasic(choices, map(lambda x: x.text, choices))
+    if optionSelector:
+      return [(choice, iOptions)]
+    return [choice]
+
+def niSelect(itemRE, optionSelector=None):
+    def currySelect(choices, itemSelector=False):
         rvalue = []
         for choice in choices:
             if itemRE.search(choice.text):
                 rvalue.append(choice)
+        if itemSelector:
+            return rvalue, optionSelector
         return rvalue
     return currySelect
 
@@ -328,16 +384,24 @@ if __name__ == "__main__":
     def log(msg):
         print msg
 
-    loginCredentials = open("piotr").readlines()[0].strip()
+    loginCredentials = open("alawi").readlines()[0].strip()
     sys.exit(
         SeamlessBrowser(log).order(
             loginCredentials,
             "(617)555-3000",
-            niSelect(
-                re.compile("Sugar \& Spice")),
-            niSelect(
-                re.compile("Three Friends")),
-            wk="Tuesday"))
+            iSelect,
+            iSelect,
+            dryRun=True,
+            wk="Wednesday"))
+#    sys.exit(
+#        SeamlessBrowser(log).order(
+#            loginCredentials,
+#            "(617)555-3000",
+#            niSelect(
+#                re.compile("Sugar \& Spice")),
+#            niSelect(
+#                re.compile("Three Friends")),
+#            wk="Tuesday"))
 #    sys.exit(
 #        SeamlessBrowser(log).order(
 #            loginCredentials,
