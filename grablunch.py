@@ -105,7 +105,7 @@ class SeamlessBrowser:
 
         return True
 
-    def addItemToOrder(self, desiredItem):
+    def addItemToOrder(self, desiredItem, updateOptions=None):
         itemUrlRE = re.compile("MealsMenuSelectionPopup.m[^']*'")
         match = itemUrlRE.search(desiredItem['href'])
         if match is None:
@@ -116,14 +116,93 @@ class SeamlessBrowser:
         itemPage = self.request(itemUrl)
         parsedItemPage = BeautifulSoup.BeautifulSoup(itemPage)
 
-        # TODO make it possible to change options
+# -- pass a list of options
+# ---- need to send a list of options
+# ---- options are given with ids which are key_value pairs
+# ---- {key_value: {label: , price: , included: , groupName: , groupLabel: }}
+# -- compute the price
+# -- select the item and add it to the order
+
+        formDefaults = {} ; allOptions = {}
+        radioButtons = [] ; checkBoxes = []
+        for inp in parsedItemPage.find(id='popup')('input'):
+          if not inp.has_key('type'): continue
+          inpType = inp['type']
+          if not inp.has_key('name'):
+            continue
+          inpName = inp['name']
+          inpValue = ""
+          if inp.has_key('value'):
+            inpValue = inp['value']
+          inpID = "%s_%s" % (inpName, inpValue)
+          if inp.has_key('id'):
+            inpID = inp['id']
+          inpPrice = 0. ; inpMaxIncluded = 0
+          if inp.has_key("price"):
+            inpPrice, inpMaxIncluded = (lambda x: (float(x[0]), int(x[1])))(inp['price'].split("_"))
+          inpLabel = ""
+          allOptions[inpID] = {"name": inpName, "value": inpValue, "type": inpType, "price": inpPrice, "maxIncluded": inpMaxIncluded}
+          if inpType in ["hidden", "text"]:
+            formDefaults[inpName] = inpValue
+          elif inpType == "radio":
+            radioButtons.append(inpName)
+            if inp.has_key('checked'):
+              formDefaults[inpName] = inpValue
+          elif inpType == "checkbox":
+            checkBoxes.append(inpName)
+            if inp.has_key('checked'):
+              formDefaults[inpName] = inpValue
+        for label in parsedItemPage('label'):
+          if label.has_key('for'):
+            try:
+              allOptions[label['for']]["label"] = label.text
+            except KeyError:
+              # TODO is this worth a warning message?
+              pass
+
+#        for key in allOptions.keys():
+#          print key
+#          for k in allOptions[key].keys():
+#            print "", k, allOptions[key][k]
+#        print formDefaults
+
+        originalPriceMatch = re.compile("originalPrice = '([.0-9]*)';").search(itemPage)
+        if originalPriceMatch is None:
+          self.log("Couldn't find the price of this item.")
+          sys.exit(0)
+        originalPrice = float(originalPriceMatch.group(1))
+
+        # decisions
+        options = {}
+        options.update(formDefaults)
+        if updateOptions:
+          options.update(updateOptions(allOptions))
+
+        # compute the price
+        extras = 0. ; priceControlArrayCount = {}
+        for k in options.keys():
+          v = options[k]
+          groupName = k.split("_")[0]
+          try:
+            priceControlArrayCount[groupName] += 1
+          except KeyError:
+            priceControlArrayCount[groupName] = 1
+          try:
+            ao = allOptions["%s_%s" % (k, v)]
+            if ao['maxIncluded'] < priceControlArrayCount[groupName]:
+              extras += ao['price']
+          except KeyError:
+            pass
+
+        itemPrice = (originalPrice + extras) * float(options['quantity'])
+        options["price"] = "$%.2f" % itemPrice
+        options["selectedRadioButtons"] = "".join(["%s|%s|" % (k,options[k]) for k in radioButtons if k in options.keys()])
+        options["selectedCheckBoxes"] = "".join(["%s|%s|" % (k,options[k]) for k in checkBoxes if k in options.keys()])
+
         pdata = (
             "ajaxCommand=29~0&29~0action=Save&29~0orderId=%s&" %
             self.orderID) + "&".join(
-            [
-                x for x in map(
-                    lambda x: x.has_key('name') and x.has_key('value') and "29~0%s=%s" %
-                    (x['name'], x['value']), parsedItemPage.find('form')('input')) if x])
+            ["29~0%s=%s" % (key, options[key]) for key in options.keys()])
 
         addItemResponse = self.request(
             "https://www.seamless.com/Ajax.m",
@@ -133,22 +212,18 @@ class SeamlessBrowser:
             self.log("Failed to add the item; not sure why.")
             return False
 
-        itemPrice = float(
-            "".join(
-                parsedItemPage.find(
-                    'input',
-                    id='price')['value'].split("$")))
         self.totalPrice += itemPrice
         self.log("Successfully added " + desiredItem.text)
+        self.log("total price = %f" % self.totalPrice)
         return True
 
-    def selectItems(self, itemSelector):
+    def selectItems(self, itemSelector, optionSelector=None):
         desiredItemCandidates = itemSelector(self.menu)
         if len(desiredItemCandidates) == 0:
             self.log("No items selected!")
             return False
         for desiredItem in desiredItemCandidates:
-            if not self.addItemToOrder(desiredItem):
+            if not self.addItemToOrder(desiredItem, optionSelector):
                 return False
         return True
 
@@ -171,6 +246,9 @@ class SeamlessBrowser:
         if len(thanksMessage) < 1:
             self.log(
                 "Looks like the order failed for some reason -- probably exceeded the meal allowance.")
+	    alertMessage = [x.text for x in parsedCheckoutResponse('div') if x.has_key('class') and "warningNote" in x['class']]
+            self.log("\n".join(alertMessage))
+            xx = open("/tmp/debug", "w") ; xx.write(checkoutResponse) ; xx.close()
             return False
 
         thanksMessage = thanksMessage[0]
@@ -186,6 +264,7 @@ class SeamlessBrowser:
             phoneNumber,
             restaurantSelector,
             itemSelector,
+            optionSelector=None,
             dryRun=False,
             wk=None):
         wk = wk or datetime.datetime.now().strftime("%A")
@@ -200,7 +279,7 @@ class SeamlessBrowser:
             return 2
 
         # select items, add them to the cart
-        if not self.selectItems(itemSelector):
+        if not self.selectItems(itemSelector, optionSelector):
             return 3
 
         if not dryRun:
@@ -230,19 +309,42 @@ def niSelect(itemRE):
         return rvalue
     return currySelect
 
+def nioSelect(optionList):
+    reOptionsList = [re.compile(x) for x in optionList]
+    def currySelect(allOptions):
+        rvalue = {}
+        for inpID in allOptions.keys():
+            for reOption in reOptionsList:
+                try:
+                    if reOption.search(allOptions[inpID]["label"]):
+                        rvalue[allOptions[inpID]["name"]] = allOptions[inpID]["value"]
+                except KeyError:
+                    pass
+        return rvalue
+    return currySelect
+
 rvalue = None
 if __name__ == "__main__":
     def log(msg):
         print msg
 
-    loginCredentials = open("alawi").readlines()[0].strip()
+    loginCredentials = open("piotr").readlines()[0].strip()
     sys.exit(
         SeamlessBrowser(log).order(
             loginCredentials,
             "(617)555-3000",
             niSelect(
-                re.compile("Viva Burrito")),
+                re.compile("Sugar \& Spice")),
             niSelect(
-                re.compile("Plain Quesadilla with Salsa Fresca|Chips with Salsa$")),
-            dryRun=False,
-            wk="Thursday"))
+                re.compile("Three Friends")),
+            wk="Tuesday"))
+#    sys.exit(
+#        SeamlessBrowser(log).order(
+#            loginCredentials,
+#            "(617)555-3000",
+#            niSelect(
+#                re.compile("Tossed")),
+#            niSelect(
+#                re.compile("Design Your Own Salad")),
+#            nioSelect(["^Romaine Hearts", "^Iceberg Lettuce", "^Corn *\(", "^Cucumbers", "^Fresh Peppers", "^Chopped Tomatoes", "Gluten-Free Balsamic Vinaigrette Dressing", "Dressing Mixed In", "Lobster Bisque"]),
+#            wk="Tuesday"))
