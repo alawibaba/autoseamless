@@ -384,7 +384,7 @@ if __name__ == "__main__":
     def log(msg):
         print msg
 
-    loginCredentials = open("alawi").readlines()[0].strip()
+    loginCredentials = open("loginCredentials").readlines()[0].strip()
     sys.exit(
         SeamlessBrowser(log).order(
             loginCredentials,
