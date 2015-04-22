@@ -379,20 +379,117 @@ def nioSelect(optionList):
         return rvalue
     return currySelect
 
+def loadFavorites(fname):
+  selections = {}
+  currentRestaurant = None
+  for line in open(fname):
+    x = line.strip()
+    if x == "":
+      continue
+    elif x[0] == "#":
+      continue
+    elif x[0] == "[":
+      currentRestaurant = x.strip()[1:-1]
+      selections[currentRestaurant] = []
+      continue
+    # this line is a meal
+    state = 0
+    a = [""]
+    for c in x:
+      if state == 0:
+        if c == ",":
+          a.append("")
+        elif c == "{":
+          a[-1] = [a[-1], ""]
+          state = 1
+        elif c == "\\":
+          state = 2
+        else:
+          a[-1] += c
+      elif state == 1:
+        if c == ",":
+          a[-1].append("")
+        elif c == "}":
+          state = 0
+        elif c == "\\":
+          state = 3
+        else:
+          a[-1][-1] += c
+      elif state == 2:
+        a[-1] += c
+        state = 0
+      elif state == 3:
+        a[-1][-1] += c
+        state = 1
+    for idx in xrange(len(a)):
+      if type(a[idx]) == str:
+        a[idx] = a[idx].strip()
+      else:
+        for idx2 in xrange(len(a[idx])):
+          a[idx][idx2] = a[idx][idx2].strip()
+    selections[currentRestaurant].append(a)
+  return selections
+
+def favoritesSelector(favorites):
+  def restaurantSelector(restaurants):
+    restaurantChoices = [] ; numOptions = 0
+    for x in favorites.keys():
+      for choice in restaurants:
+        if choice.text.find(x) >= 0:
+          restaurantChoices.append((choice, favorites[x]))
+          numOptions += len(favorites[x])
+          break
+    idx = int(random.uniform(0, numOptions))
+    if idx == numOptions: idx -= 1
+    for c, l in restaurantChoices:
+      if idx < len(l):
+        restaurantSelector.choice = l[idx]
+        print "Selected %s" % c.text ; sys.stdout.flush()
+        return [c]
+      idx -= len(l)
+  restaurantSelector.choice = None
+  def optionSelector(options):
+    if len(options) == 0:
+      return None
+    def rvalue(fullOptionsList):
+      optDict = {}
+      order = [x for x in fullOptionsList.keys() if 'label' in fullOptionsList[x]]
+      order.sort(lambda x,y: len(fullOptionsList[x]['label']) - len(fullOptionsList[y]['label']))
+      for opt in options:
+        for o in order:
+          if fullOptionsList[o]['label'].find(opt) >= 0:
+            print "-- %s" % fullOptionsList[o]['label']
+            optDict[fullOptionsList[o]['name']] = fullOptionsList[o]['value']
+            break
+      return optDict
+    return rvalue
+  def itemSelector(items, includeOptionSelector):
+    rvalue = []
+    items.sort(lambda x, y: len(x.text)-len(y.text))
+    for item in restaurantSelector.choice:
+      itemName = item
+      if type(item) == list:
+        itemName = item[0]
+      for x in items:
+        if x.text.find(itemName) >= 0:
+          print "Selected %s" % x.text
+          rvalue.append((x, optionSelector(item[1:])))
+          break
+    return rvalue
+  return restaurantSelector, itemSelector
+
 rvalue = None
 if __name__ == "__main__":
     def log(msg):
         print msg
 
     loginCredentials = open("loginCredentials").readlines()[0].strip()
+    r, i = favoritesSelector(loadFavorites("favorites.txt"))
     sys.exit(
         SeamlessBrowser(log).order(
             loginCredentials,
             "(617)555-3000",
-            iSelect,
-            iSelect,
-            dryRun=True,
-            wk="Wednesday"))
+            r, i))
 #    sys.exit(
 #        SeamlessBrowser(log).order(
 #            loginCredentials,
