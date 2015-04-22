@@ -18,8 +18,11 @@ def listRestaurants():
     loginCredentials = open("piotr").readlines()[0].strip()
     sb.login(loginCredentials)
     wk = datetime.datetime.now().strftime("%A")
+    restaurantList = sb.listRestaurants(wk)
+    if not restaurantList:
+      return "Looks like we don't order today or it's too late to do so!"
     buf = []
-    for restaurant in sb.listRestaurants(wk):
+    for restaurant in restaurantList:
         vlid = URLObject(restaurant['href']).query.dict['vendorLocationId']
         buf.append("<a href='%s'>%s</a>" % (url_for("selectRestaurants", id=vlid), restaurant.text))
     return "<br/>".join(buf)
@@ -33,9 +36,11 @@ def showMenu():
             continue
         qdict = URLObject(match.group()).query.dict
         pid = qdict['ProductId']
+        cid = qdict['CategoryId']
         price = float(qdict['Price'])
-        buf.append("<tr><td><a href='%s'>%s</a></td><td align=right>$%.2f</td></tr>" % (url_for("getItemOptions", id=pid), item.text, price))
-    return "<table>" + "".join(buf) + "</table>" + "<br/><br/><a href='%s'>Checkout</a>" % url_for("checkout")
+        buf.append((cid, "<tr><td><a href='%s'>%s</a></td><td align=right>$%.2f</td></tr>" % (url_for("getItemOptions", id=pid), item.text, price)))
+    buf.sort()
+    return "<table>" + "".join(map(lambda x: x[1], buf)) + "</table>" + "<br/><br/><a href='%s'>Checkout</a>" % url_for("checkout")
 
 @app.route("/selectRestaurant")
 def selectRestaurants():
@@ -63,7 +68,9 @@ def getItemOptions():
                 checked = "checked"
         except KeyError:
             pass
-        buf.append("%s <input type=%s name=%s value=%s %s />" % (option['label'], option['type'], option['name'], option['value'], checked))
+        buf.append((option['name'], "%s <input type=%s name=%s value=%s %s />" % (option['label'], option['type'], option['name'], option['value'], checked)))
+    buf.sort()
+    buf = map(lambda x: x[1], buf)
     buf.append("<input type=submit value='submit'/>")
     return "<form method=POST action=%s>" % url_for("addItemToOrder", id=request.args['id']) + "<br/>".join(buf) + "</form>"
 
