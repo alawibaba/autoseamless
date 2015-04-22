@@ -50,14 +50,17 @@ class SeamlessBrowser:
         self.parsedGroupOrder = parsedGroupOrder
         return True
 
-    def selectRestaurant(self, wk, restaurantSelector):
+    def listRestaurants(self, wk):
         todaysTag = self.parsedGroupOrder.find('h3', text=re.compile(wk))
         if todaysTag is None:
             self.log(
                 "It looks like we either don't order today or it's too late to do so.\nSorry about that!")
             return False
         todaysTag = todaysTag.parent
-        todaysRestaurants = todaysTag.findNextSibling("ul").findChildren("a")
+        return todaysTag.findNextSibling("ul").findChildren("a")
+
+    def selectRestaurant(self, wk, restaurantSelector):
+        todaysRestaurants = self.listRestaurants(wk)
         desiredRestaurant = restaurantSelector(todaysRestaurants)
 
         if len(desiredRestaurant) == 0:
@@ -105,7 +108,7 @@ class SeamlessBrowser:
 
         return True
 
-    def addItemToOrder(self, desiredItem, updateOptions=None):
+    def fetchItemPageOptions(self, desiredItem):
         itemUrlRE = re.compile("MealsMenuSelectionPopup.m[^']*'")
         match = itemUrlRE.search(desiredItem['href'])
         if match is None:
@@ -152,6 +155,11 @@ class SeamlessBrowser:
             except KeyError:
               # TODO is this worth a warning message?
               pass
+
+        return itemPage, parsedItemPage, formDefaults, allOptions, radioButtons, checkBoxes
+
+    def addItemToOrder(self, desiredItem, updateOptions=None):
+        itemPage, parsedItemPage, formDefaults, allOptions, radioButtons, checkBoxes = self.fetchItemPageOptions(desiredItem)
 
         originalPriceMatch = re.compile("originalPrice = '([.0-9]*)';").search(itemPage)
         if originalPriceMatch is None:
@@ -216,7 +224,7 @@ class SeamlessBrowser:
 
     def checkout(self, phoneNumber="(617)555-3000"):
         # checkout
-        alloc = "%.2f" % (self.totalPrice * 1.1)
+        alloc = "%.2f" % (self.totalPrice * 1.15)
         year = datetime.datetime.now().year
 
         pdata = "goToCheckout=NO&TotalAlloc=%s00&LineId=&saveFavoriteCommand=Checkout.m&WhichPage=Meals&favoriteNameOriginal=&firstCheckOut=Y&acceptedBudgetWarning=N&AcceptedWarnings=N&acceptedFavoriteWarning=N&FavoriteSaved=N&UserSearchType=&ShowAddUser=N&deliveryType=Delivery&EcoToGoOrderId=%s&EcoToGoUserId=%s&OverageAllocationAmt=0&InfoPopupfavorite_name=&InfoPopupfavorite_saveType=&InfoPopupfavorite_orderId=%s&AllocationAmt1=%s&FirstName=&LastName=&NewAllocationAmt=&allocCount=1&totalAllocated=$%s&AllocationComment=&typeOfCreditCard=&creditCardNumber=&CCExpireMonth=1&CCExpireYear=%d&creditCardZipCode=&CreditCardCVV=&saveCreditCardInfo=&ccClicked=no&ccTextChange=no&savedCCNumber=&savedCCType=&currentType=&OrderIdClicked=%s&FloorRoom=9&phoneNumber=%s&DeliveryComment=&EcoToGoOrder=Y&InfoPopup_name=Namethisfavorite&favoriteSaveMode=successWithOrderingMeals" % (
@@ -467,13 +475,13 @@ def favoritesSelector(favorites):
     rvalue = []
     items.sort(lambda x, y: len(x.text)-len(y.text))
     for item in restaurantSelector.choice:
-      itemName = item
+      itemName = item ; options = []
       if type(item) == list:
-        itemName = item[0]
+        itemName = item[0] ; options = item[1:]
       for x in items:
         if x.text.find(itemName) >= 0:
           print "Selected %s" % x.text
-          rvalue.append((x, optionSelector(item[1:])))
+          rvalue.append((x, optionSelector(options)))
           break
     return rvalue
   return restaurantSelector, itemSelector
@@ -483,13 +491,14 @@ if __name__ == "__main__":
     def log(msg):
         print msg
 
-    loginCredentials = open("loginCredentials").readlines()[0].strip()
+    loginCredentials = open("piotr").readlines()[0].strip()
     r, i = favoritesSelector(loadFavorites("favorites.txt"))
     sys.exit(
         SeamlessBrowser(log).order(
             loginCredentials,
             "(617)555-3000",
-            r, i))
+            r, i, wk="Thursday"))
+
 #    sys.exit(
 #        SeamlessBrowser(log).order(
 #            loginCredentials,
