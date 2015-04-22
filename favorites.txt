@@ -1,0 +1,76 @@
+# This is Ali's favorites file. Think of it as a demo
+# (or possibly some insight into what I like to eat).
+[Tossed]
+Cayenne Shrimp Salad
+Caesar Salad
+Design Your Own Salad {Romaine Hearts, Iceberg Lettuce, Corn, Cucumbers, Fresh Peppers, Chopped Tomatoes, Gluten-Free Balsamic Vinaigrette Dressing, Dressing Mixed In, Lobster Bisque}
+
+[Sugar & Spice]
+Fish Story
+Three Friends
+Chili Lime Salmon
+
+[India Palace]
+Aloo Gobhi - Lunch, Naan
+Chole Saag - Lunch, Naan
+Palak Paneer - Lunch, Naan
+Mutter Pallao
+Lamb Rogan Josh - Lunch, Raita
+
+[Beijing Tokyo]
+Shrimp Pad Thai
+Shrimp with Cashew Nut Lunch Special
+Shrimp with Black Bean Sauce Lunch Special
+Shrimp w/ Garlic Sauce Lunch Special
+Shrimp with Kung Pao Sauce Lunch Special
+
+[Alfredo's Italian Kitchen]
+Baked Ziti
+White Tuna Salad, Garlic Bread
+Veggie Deluxe Sub, Garlic Bread
+Potato and Egg Sub
+Pasta with Marinara Sauce and Parmigiana Cheese
+Specialty Pasta with Marinara Sauce and Parmigiana Cheese
+Homemade Eggplant Parmigiana Sub, Garlic Bread
+
+[Viva Burrito]
+Plain Quesadilla with Salsa Fresca, Chips with Salsa
+Shrimp Quesadilla, Chips with Salsa
+Shrimp Tostado, Chips
+Rice & Bean Burrito, Chips
+Cheese Enchilada
+Vegetarian Enchilada
+Shrimp Fajita, Chips
+Seafood Fajita
+
+[Eat at Jumbos]
+Vegetarian Sandwich, French Fries
+Vegetarian Sandwich, Pasta Salad
+Tuna Meltini Panini, French Fries
+Tuna Meltini Panini, Potato Salad
+Tuna Meltini Panini, Pasta Salad
+Baked Ziti
+
+[Curry Thai]
+Seafood Tom Yum Noodle Soup
+Lunch Crab Fried Rice
+Lunch Duck Fried Rice
+
+[Cafe 472]
+Triple Grilled Cheese Panini, Garlic Bread with Cheese
+Veggie Pasta Penne, Cape Cod Chips
+Tuna Melt with Tomatoes, Cape Cod Chips
+
+[Thelonious Monkfish]
+Vegetable Pad Thai, Sticky Rice
+Monkfish Fried Rice {Shrimp}, Sticky Rice
+Drunken Noodles {Shrimp}, Brown Rice
+Cellophane Noodle Pad Thai, Sticky Rice
+Noodles Nirvana, Sticky Rice
+Seafood Stir-Fry
+Shrimp Stir-Fry
+Vegetable Stir-Fry, Brown Rice
+Monkfish Medley
+
+[Bailey & Sage]
+Grilled Caprese Sandwich
