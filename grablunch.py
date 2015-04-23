@@ -491,13 +491,13 @@ if __name__ == "__main__":
     def log(msg):
         print msg
 
-    loginCredentials = open("piotr").readlines()[0].strip()
+    loginCredentials = open("loginCredentials").readlines()[0].strip()
     r, i = favoritesSelector(loadFavorites("favorites.txt"))
     sys.exit(
         SeamlessBrowser(log).order(
             loginCredentials,
             "(617)555-3000",
-            r, i, wk="Thursday"))
+            r, i))
 
 #    sys.exit(
 #        SeamlessBrowser(log).order(
