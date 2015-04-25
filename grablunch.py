@@ -10,7 +10,6 @@ if __name__ == "__main__":
         print msg
 
     loginCredentials = open("loginCredentials").readlines()[0].strip()
-    r, i = 
     sys.exit(
         seamless_browser.SeamlessBrowser(log).order(
             loginCredentials,
