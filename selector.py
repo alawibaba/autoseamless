@@ -7,7 +7,7 @@ class Selector:
         return []
 
 class InteractiveSelector(Selector):
-    def iSelectBasic(self, choices, labels):
+    def i_select_basic(self, choices, labels):
         for idx in xrange(len(choices)):
             print idx, labels[idx]
         idx = -1
@@ -18,99 +18,99 @@ class InteractiveSelector(Selector):
             except ValueError:
                 idx = -1
         return choices[idx]
-    def iSelectMulti(self, choices, labels):
+    def i_select_multi(self, choices, labels):
         for idx in xrange(len(choices)):
             print idx, labels[idx]
         idx = []
         while True:
             print "Please enter a list of integers between 0 and %d (inclusive)." % (len(choices) - 1)
-            idxList = raw_input("Select> ")
-            if idxList.strip() == "":
+            idx_list = raw_input("Select> ")
+            if idx_list.strip() == "":
                 return []
             try:
-                return map(lambda k: choices[k], map(int, idxList.split(",")))
+                return map(lambda k: choices[k], map(int, idx_list.split(",")))
             except ValueError:
                 pass
             except KeyError:
                 pass
-    def iOptions(self, allOptions):
+    def i_options(self, all_options):
         rvalue = {}
-        optionGroups = {}
-        for optId in allOptions.keys():
-            groupId = optId.split("_")[0]
+        option_groups = {}
+        for opt_id in all_options.keys():
+            group_id = opt_id.split("_")[0]
             try:
-                optionGroups[groupId][1].append(optId)
+                option_groups[group_id][1].append(opt_id)
             except KeyError:
-                optionGroups[groupId] = (allOptions[optId]['type'], [optId])
-        optionGroupKeys = optionGroups.keys()
-        optionGroupKeys.sort()
-        for optionGroupKey in optionGroupKeys:
-            inpType, inpIds = optionGroups[optionGroupKey]
-            if inpType == "hidden":
+                option_groups[group_id] = (all_options[opt_id]['type'], [opt_id])
+        option_group_keys = option_groups.keys()
+        option_group_keys.sort()
+        for option_group_key in option_group_keys:
+            inp_type, inp_ids = option_groups[option_group_key]
+            if inp_type == "hidden":
                 continue
-            elif inpType == "text":
-                for inpId in inpIds:
+            elif inp_type == "text":
+                for inp_id in inp_ids:
                     try:
-                        print allOptions[inpIds[0]]['label']
+                        print all_options[inp_ids[0]]['label']
                         val = raw_input("> ")
-                        rvalue[inpId] = val
+                        rvalue[inp_id] = val
                     except KeyError:
                         continue
-            elif inpType == "radio":
+            elif inp_type == "radio":
                 print "Please select one."
                 choices = [] ; labels = []
-                for idx, inpId in zip(range(len(inpIds)), inpIds):
+                for idx, inp_id in zip(range(len(inp_ids)), inp_ids):
                     try:
-                        labels.append(allOptions[inpId]['label'])
-                        choices.append(inpId)
+                        labels.append(all_options[inp_id]['label'])
+                        choices.append(inp_id)
                     except KeyError:
                         continue
-                inpId = iSelectBasic(choices, labels)
-                rvalue[allOptions[inpId]['name']] = allOptions[inpId]['value']
-            elif inpType == "checkbox":
+                inp_id = i_select_basic(choices, labels)
+                rvalue[all_options[inp_id]['name']] = all_options[inp_id]['value']
+            elif inp_type == "checkbox":
                 print "Please select as many as you like (separate by commas)."
                 choices = [] ; labels = []
-                for idx, inpId in zip(range(len(inpIds)), inpIds):
+                for idx, inp_id in zip(range(len(inp_ids)), inp_ids):
                     try:
-                        labels.append(allOptions[inpId]['label'])
-                        choices.append(inpId)
+                        labels.append(all_options[inp_id]['label'])
+                        choices.append(inp_id)
                     except KeyError:
                         continue
-                selectedInpIds = iSelectMulti(choices, labels)
-                for inpId in selectedInpIds:
-                    rvalue[allOptions[inpId]['name']] = allOptions[inpId]['value']
+                selected_inp_ids = i_select_multi(choices, labels)
+                for inp_id in selected_inp_ids:
+                    rvalue[all_options[inp_id]['name']] = all_options[inp_id]['value']
         return rvalue
-    def restaurant_match(self, restaurantList):
-        return [self.iSelectBasic(choices, map(lambda x: x.text, choices))]
-    def item_match(self, itemList):
-        return [(self.iSelectBasic(choices, map(lambda x: x.text, choices)), self.iOptions)]
+    def restaurant_match(self, restaurant_list):
+        return [self.i_select_basic(choices, map(lambda x: x.text, choices))]
+    def item_match(self, item_list):
+        return [(self.i_select_basic(choices, map(lambda x: x.text, choices)), self.i_options)]
 
 class RegexSelector(Selector):
-    def __init__(self, restaurantRE, itemsRE):
-        self.restaurantRE = restaurantRE
-        self.itemsRE = itemsRE
-    def restaurant_match(self, restaurantList):
+    def __init__(self, restaurant_re, items_re):
+        self.restaurant_re = restaurant_re
+        self.items_re = items_re
+    def restaurant_match(self, restaurant_list):
         rvalue = []
-        for choice in restaurantList:
-            if self.restaurantRE.search(choice.text):
+        for choice in restaurant_list:
+            if self.restaurant_re.search(choice.text):
                 rvalue.append(choice)
         return rvalue
-    def optionsMatch(optionsRE):
-        def currySelect(allOptions):
+    def options_match(options_re):
+        def curry_select(all_options):
             rvalue = {}
-            for inpID in allOptions.keys():
+            for inp_id in all_options.keys():
                 try:
-                    if optionsRE.search(allOptions[inpID]["label"]):
-                        rvalue[allOptions[inpID]["name"]] = allOptions[inpID]["value"]
+                    if options_re.search(all_options[inp_id]["label"]):
+                        rvalue[all_options[inp_id]["name"]] = all_options[inp_id]["value"]
                 except KeyError:
                     pass
             return rvalue
-        return currySelect
-    def item_match(self, itemList):
+        return curry_select
+    def item_match(self, item_list):
         rvalue = []
-        for choice in itemList:
-            for itemRE, optionsRE in self.itemsRE:
-                if self.itemRE.search(choice.text):
-                    rvalue.append((choice, self.optionsMatch(optionsRE)))
+        for choice in item_list:
+            for item_re, options_re in self.items_re:
+                if self.item_re.search(choice.text):
+                    rvalue.append((choice, self.options_match(options_re)))
                     break
         return rvalue
