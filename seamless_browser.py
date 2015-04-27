@@ -68,7 +68,7 @@ class SeamlessBrowser:
 
     def selectRestaurant(self, wk, restaurantSelector):
         todaysRestaurants = self.listRestaurants(wk)
-        desiredRestaurant = restaurantSelector.restaurantMatch(todaysRestaurants)
+        desiredRestaurant = restaurantSelector.restaurant_match(todaysRestaurants)
 
         if len(desiredRestaurant) == 0:
             self.log("Restaurant not found.")
@@ -220,7 +220,7 @@ class SeamlessBrowser:
         return True
 
     def selectItems(self, itemSelector):
-        desiredItemCandidates = itemSelector.itemMatch(self.menu)
+        desiredItemCandidates = itemSelector.item_match(self.menu)
         if len(desiredItemCandidates) == 0:
             self.log("No items selected!")
             return False

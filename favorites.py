@@ -27,7 +27,7 @@ class FavoritesSelector(selector.Selector):
                   [opt.strip() for opt in opts.split(",") if opt.strip() != ''])
                  for mpre, opts, mpost in match])
     
-    def restaurantMatch(self, restaurants):
+    def restaurant_match(self, restaurants):
         restaurant_choices = [] ; num_options = 0
         for x in self.selections.keys():
             for choice in restaurants:
@@ -60,7 +60,7 @@ class FavoritesSelector(selector.Selector):
             return opt_dict
         return rvalue
 
-    def itemMatch(self, items):
+    def item_match(self, items):
         rvalue = []
         items.sort(lambda x, y: len(x.text)-len(y.text))
         for item_name, options in self.choice:

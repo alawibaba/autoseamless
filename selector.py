@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 class Selector:
-    def restaurantMatch(self, restaurantList):
+    def restaurant_match(self, restaurant_list):
         return []
-    def itemMatch(self, itemList):
+    def item_match(self, item_list):
         return []
 
 class InteractiveSelector(Selector):
@@ -80,16 +80,16 @@ class InteractiveSelector(Selector):
                 for inpId in selectedInpIds:
                     rvalue[allOptions[inpId]['name']] = allOptions[inpId]['value']
         return rvalue
-    def restaurantMatch(self, restaurantList):
+    def restaurant_match(self, restaurantList):
         return [self.iSelectBasic(choices, map(lambda x: x.text, choices))]
-    def itemMatch(self, itemList):
+    def item_match(self, itemList):
         return [(self.iSelectBasic(choices, map(lambda x: x.text, choices)), self.iOptions)]
 
 class RegexSelector(Selector):
     def __init__(self, restaurantRE, itemsRE):
         self.restaurantRE = restaurantRE
         self.itemsRE = itemsRE
-    def restaurantMatch(self, restaurantList):
+    def restaurant_match(self, restaurantList):
         rvalue = []
         for choice in restaurantList:
             if self.restaurantRE.search(choice.text):
@@ -106,7 +106,7 @@ class RegexSelector(Selector):
                     pass
             return rvalue
         return currySelect
-    def itemMatch(self, itemList):
+    def item_match(self, itemList):
         rvalue = []
         for choice in itemList:
             for itemRE, optionsRE in self.itemsRE:
