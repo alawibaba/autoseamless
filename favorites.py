@@ -1,6 +1,7 @@
 import random
 import re
 import selector
+import sys
 
 class FavoritesSelector(selector.Selector):
     def __init__(self, fname):
@@ -26,13 +27,13 @@ class FavoritesSelector(selector.Selector):
                   [opt.strip() for opt in opts.split(",") if opt.strip() != ''])
                  for mpre, opts, mpost in match])
     
-    def restaurantMatch(restaurants):
+    def restaurantMatch(self, restaurants):
         restaurant_choices = [] ; num_options = 0
-        for x in favorites.keys():
+        for x in self.selections.keys():
             for choice in restaurants:
                 if choice.text.find(x) >= 0:
-                    restaurant_choices.append((choice, favorites[x]))
-                    num_options += len(favorites[x])
+                    restaurant_choices.append((choice, self.selections[x]))
+                    num_options += len(self.selections[x])
                     break
         idx = int(random.uniform(0, num_options))
         if idx == num_options: idx -= 1
@@ -62,7 +63,7 @@ class FavoritesSelector(selector.Selector):
     def itemMatch(self, items):
         rvalue = []
         items.sort(lambda x, y: len(x.text)-len(y.text))
-        for item_name, options in restaurant_selector.choice:
+        for item_name, options in self.choice:
             for x in items:
                 if x.text.find(item_name) >= 0:
                     print "Selected %s" % x.text
