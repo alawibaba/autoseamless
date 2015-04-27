@@ -9,30 +9,30 @@ if __name__ == "__main__":
     def log(msg):
         print msg
 
-    loginCredentials = open("loginCredentials").readlines()[0].strip()
+    login_credentials = open("loginCredentials").readlines()[0].strip()
     sys.exit(
         seamless_browser.SeamlessBrowser(log).order(
-            loginCredentials,
+            login_credentials,
             "(617)555-3000",
 	    favorites.FavoritesSelector("favorites.txt"),
             wk="Thursday"))
 
 #    sys.exit(
 #        SeamlessBrowser(log).order(
-#            loginCredentials,
+#            login_credentials,
 #            "(617)555-3000",
-#            niSelect(
+#            ni_select(
 #                re.compile("Sugar \& Spice")),
-#            niSelect(
+#            ni_select(
 #                re.compile("Three Friends")),
 #            wk="Tuesday"))
 #    sys.exit(
 #        SeamlessBrowser(log).order(
-#            loginCredentials,
+#            login_credentials,
 #            "(617)555-3000",
-#            niSelect(
+#            ni_select(
 #                re.compile("Tossed")),
-#            niSelect(
+#            ni_select(
 #                re.compile("Design Your Own Salad")),
-#            nioSelect(["^Romaine Hearts", "^Iceberg Lettuce", "^Corn *\(", "^Cucumbers", "^Fresh Peppers", "^Chopped Tomatoes", "Gluten-Free Balsamic Vinaigrette Dressing", "Dressing Mixed In", "Lobster Bisque"]),
+#            nio_select(["^Romaine Hearts", "^Iceberg Lettuce", "^Corn *\(", "^Cucumbers", "^Fresh Peppers", "^Chopped Tomatoes", "Gluten-Free Balsamic Vinaigrette Dressing", "Dressing Mixed In", "Lobster Bisque"]),
 #            wk="Tuesday"))

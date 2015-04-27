@@ -21,11 +21,11 @@ class SeamlessBrowser:
 
     def __init__(self, log):
         self.ua = USER_AGENT
-        self.cookieJar = cookielib.CookieJar()
-        self.urlOpener = urllib2.build_opener(
+        self.cookie_jar = cookielib.CookieJar()
+        self.url_opener = urllib2.build_opener(
             urllib2.HTTPCookieProcessor(
-                self.cookieJar))
-        self.lastUrl = ""
+                self.cookie_jar))
+        self.last_url = ""
         self.log = log
 
     def request(
@@ -33,256 +33,256 @@ class SeamlessBrowser:
             url,
             headers=[],
             postdata=None,
-            sendReferer=True,
-            updateURL=True):
-        if self.lastUrl:
-            url = urlparse.urljoin(self.lastUrl, url)
-        if sendReferer and self.lastUrl and self.lastUrl != "":
-            headers = [('referer', self.lastUrl)] + headers
-        self.urlOpener.addheaders = [('User-agent', self.ua)] + headers
-        if updateURL:
-            self.lastUrl = url
-        return self.urlOpener.open(url, postdata).read()
+            send_referer=True,
+            update_url=True):
+        if self.last_url:
+            url = urlparse.urljoin(self.last_url, url)
+        if send_referer and self.last_url and self.last_url != "":
+            headers = [('referer', self.last_url)] + headers
+        self.url_opener.addheaders = [('User-agent', self.ua)] + headers
+        if update_url:
+            self.last_url = url
+        return self.url_opener.open(url, postdata).read()
 
-    def login(self, loginCredentials):
+    def login(self, login_credentials):
         self.request(SEAMLESS_LOGIN_URL)
-        groupOrder = self.request(
+        group_order = self.request(
             SEAMLESS_LOGIN_URL,
             postdata="ReturnUrl=%2Ffood-delivery%2Faddress.m&" +
-            loginCredentials)
-        parsedGroupOrder = BeautifulSoup.BeautifulSoup(groupOrder)
-        if parsedGroupOrder.title.text.startswith("Bad Login"):
+            login_credentials)
+        parsed_group_order = BeautifulSoup.BeautifulSoup(group_order)
+        if parsed_group_order.title.text.startswith("Bad Login"):
             self.log("Login incorrect.")
             return False
-        self.parsedGroupOrder = parsedGroupOrder
+        self.parsed_group_order = parsed_group_order
         return True
 
-    def listRestaurants(self, wk):
-        todaysTag = self.parsedGroupOrder.find('h3', text=re.compile(wk))
-        if todaysTag is None:
+    def list_restaurants(self, wk):
+        todays_tag = self.parsed_group_order.find('h3', text=re.compile(wk))
+        if todays_tag is None:
             self.log(
                 "It looks like we either don't order today or it's too late to do so.\nSorry about that!")
             return False
-        todaysTag = todaysTag.parent
-        return todaysTag.findNextSibling("ul").findChildren("a")
+        todays_tag = todays_tag.parent
+        return todays_tag.findNextSibling("ul").findChildren("a")
 
-    def selectRestaurant(self, wk, restaurantSelector):
-        todaysRestaurants = self.listRestaurants(wk)
-        desiredRestaurant = restaurantSelector.restaurant_match(todaysRestaurants)
+    def select_restaurant(self, wk, restaurant_selector):
+        todays_restaurants = self.list_restaurants(wk)
+        desired_restaurant = restaurant_selector.restaurant_match(todays_restaurants)
 
-        if len(desiredRestaurant) == 0:
+        if len(desired_restaurant) == 0:
             self.log("Restaurant not found.")
             return False
-        if len(desiredRestaurant) > 1:
+        if len(desired_restaurant) > 1:
             self.log(
                 "Warning: multiple restaurants matched -- taking the first one!")
-        desiredRestaurant = desiredRestaurant[0]['href']
+        desired_restaurant = desired_restaurant[0]['href']
 
-        self.lastUrl = SEAMLESS_GROUP_ORDER_URL
-        restaurantPage = self.request(desiredRestaurant)
-        parsedRestaurantPage = BeautifulSoup.BeautifulSoup(restaurantPage)
+        self.last_url = SEAMLESS_GROUP_ORDER_URL
+        restaurant_page = self.request(desired_restaurant)
+        parsed_restaurant_page = BeautifulSoup.BeautifulSoup(restaurant_page)
 
-        userIdFind = parsedRestaurantPage('input', id='tagUserId')
-        if len(userIdFind) == 0:
+        user_id_find = parsed_restaurant_page('input', id='tagUserId')
+        if len(user_id_find) == 0:
             self.log("Couldn't find your user ID, giving up.")
             return False
-        self.userID = userIdFind[0]['value']
+        self.user_id = user_id_find[0]['value']
 
-        orderIdFind = parsedRestaurantPage(
+        order_id_find = parsed_restaurant_page(
             'input',
             id='InfoPopupfavorite_orderId')
-        if len(orderIdFind) == 0:
+        if len(order_id_find) == 0:
             self.log("Couldn't find your order ID, giving up.")
             return False
-        self.orderID = orderIdFind[0]['value']
+        self.order_id = order_id_find[0]['value']
 
-        allItems = parsedRestaurantPage(
+        all_items = parsed_restaurant_page(
             'a',
             href=re.compile('MealsMenuSelectionPopup.m'))
 
         # sometimes items will be duplicated, e.g. because the item is
         # one of the most popular for this restaurant
-        itemCandidates = {}
-        productIdRE = re.compile("ProductId=([0-9]+)&")
-        for item in allItems:
-            match = productIdRE.search(item['href'])
+        item_candidates = {}
+        product_id_re = re.compile("ProductId=([0-9]+)&")
+        for item in all_items:
+            match = product_id_re.search(item['href'])
             if match is None:
                 continue
-            itemCandidates[match.group(1)] = item
-        self.menu = itemCandidates.values()
+            item_candidates[match.group(1)] = item
+        self.menu = item_candidates.values()
 
-        self.totalPrice = 0
+        self.total_price = 0
 
         return True
 
-    def fetchItemPageOptions(self, desiredItem):
-        itemUrlRE = re.compile("MealsMenuSelectionPopup.m[^']*'")
-        match = itemUrlRE.search(desiredItem['href'])
+    def fetch_item_page_options(self, desired_item):
+        item_url_re = re.compile("MealsMenuSelectionPopup.m[^']*'")
+        match = item_url_re.search(desired_item['href'])
         if match is None:
             log("We ran into trouble parsing the item URL. Giving up!")
             return False
-        itemUrl = match.group()
+        item_url = match.group()
 
-        itemPage = self.request(itemUrl)
-        parsedItemPage = BeautifulSoup.BeautifulSoup(itemPage)
+        item_page = self.request(item_url)
+        parsed_item_page = BeautifulSoup.BeautifulSoup(item_page)
 
-        formDefaults = {} ; allOptions = {}
-        radioButtons = [] ; checkBoxes = []
-        for inp in parsedItemPage.find(id='popup')('input'):
+        form_defaults = {} ; all_options = {}
+        radio_buttons = [] ; check_boxes = []
+        for inp in parsed_item_page.find(id='popup')('input'):
             if not inp.has_key('type'): continue
-            inpType = inp['type']
+            inp_type = inp['type']
             if not inp.has_key('name'):
                 continue
-            inpName = inp['name']
-            inpValue = ""
+            inp_name = inp['name']
+            inp_value = ""
             if inp.has_key('value'):
-                inpValue = inp['value']
-            inpID = "%s_%s" % (inpName, inpValue)
+                inp_value = inp['value']
+            inp_id = "%s_%s" % (inp_name, inp_value)
             if inp.has_key('id'):
-                inpID = inp['id']
-            inpPrice = 0. ; inpMaxIncluded = 0
+                inp_id = inp['id']
+            inp_price = 0. ; inp_max_included = 0
             if inp.has_key("price"):
-                inpPrice, inpMaxIncluded = (lambda x: (float(x[0]), int(x[1])))(inp['price'].split("_"))
-            inpLabel = ""
-            allOptions[inpID] = {"name": inpName, "value": inpValue, "type": inpType, "price": inpPrice, "maxIncluded": inpMaxIncluded}
-            if inpType in ["hidden", "text"]:
-                formDefaults[inpName] = inpValue
-            elif inpType == "radio":
-                radioButtons.append(inpName)
+                inp_price, inp_max_included = (lambda x: (float(x[0]), int(x[1])))(inp['price'].split("_"))
+            inp_label = ""
+            all_options[inp_id] = {"name": inp_name, "value": inp_value, "type": inp_type, "price": inp_price, "max_included": inp_max_included}
+            if inp_type in ["hidden", "text"]:
+                form_defaults[inp_name] = inp_value
+            elif inp_type == "radio":
+                radio_buttons.append(inp_name)
                 if inp.has_key('checked'):
-                    formDefaults[inpName] = inpValue
-            elif inpType == "checkbox":
-                checkBoxes.append(inpName)
+                    form_defaults[inp_name] = inp_value
+            elif inp_type == "checkbox":
+                check_boxes.append(inp_name)
                 if inp.has_key('checked'):
-                    formDefaults[inpName] = inpValue
-        for label in parsedItemPage('label'):
+                    form_defaults[inp_name] = inp_value
+        for label in parsed_item_page('label'):
             if label.has_key('for'):
                 try:
-                    allOptions[label['for']]["label"] = label.text
+                    all_options[label['for']]["label"] = label.text
                 except KeyError:
                     # TODO is this worth a warning message?
                     pass
 
-        return itemPage, parsedItemPage, formDefaults, allOptions, radioButtons, checkBoxes
+        return item_page, parsed_item_page, form_defaults, all_options, radio_buttons, check_boxes
 
-    def addItemToOrder(self, desiredItem, updateOptions=None):
-        itemPage, parsedItemPage, formDefaults, allOptions, radioButtons, checkBoxes = self.fetchItemPageOptions(desiredItem)
+    def add_item_to_order(self, desired_item, update_options=None):
+        item_page, parsed_item_page, form_defaults, all_options, radio_buttons, check_boxes = self.fetch_item_page_options(desired_item)
 
-        originalPriceMatch = re.compile("originalPrice = '([.0-9]*)';").search(itemPage)
-        if originalPriceMatch is None:
+        original_price_match = re.compile("originalPrice = '([.0-9]*)';").search(item_page)
+        if original_price_match is None:
             self.log("Couldn't find the price of this item.")
             return False
-        originalPrice = float(originalPriceMatch.group(1))
+        original_price = float(original_price_match.group(1))
 
         # decisions
         options = {}
-        options.update(formDefaults)
-        if updateOptions:
-            options.update(updateOptions(allOptions))
+        options.update(form_defaults)
+        if update_options:
+            options.update(update_options(all_options))
 
         # compute the price
-        extras = 0. ; priceControlArrayCount = {}
+        extras = 0. ; price_control_array_count = {}
         for k in options.keys():
             v = options[k]
-            groupName = k.split("_")[0]
+            group_name = k.split("_")[0]
             try:
-                priceControlArrayCount[groupName] += 1
+                price_control_array_count[group_name] += 1
             except KeyError:
-                priceControlArrayCount[groupName] = 1
+                price_control_array_count[group_name] = 1
             try:
-                ao = allOptions["%s_%s" % (k, v)]
-                if ao['maxIncluded'] < priceControlArrayCount[groupName]:
+                ao = all_options["%s_%s" % (k, v)]
+                if ao['max_included'] < price_control_array_count[group_name]:
                     extras += ao['price']
             except KeyError:
                 pass
 
-        itemPrice = (originalPrice + extras) * float(options['quantity'])
-        options["price"] = "$%.2f" % itemPrice
-        options["selectedRadioButtons"] = "".join(["%s|%s|" % (k,options[k]) for k in radioButtons if k in options.keys()])
-        options["selectedCheckBoxes"] = "".join(["%s|%s|" % (k,options[k]) for k in checkBoxes if k in options.keys()])
+        item_price = (original_price + extras) * float(options['quantity'])
+        options["price"] = "$%.2f" % item_price
+        options["selectedRadioButtons"] = "".join(["%s|%s|" % (k,options[k]) for k in radio_buttons if k in options.keys()])
+        options["selectedCheckBoxes"] = "".join(["%s|%s|" % (k,options[k]) for k in check_boxes if k in options.keys()])
 
         pdata = (
             "ajaxCommand=29~0&29~0action=Save&29~0orderId=%s&" %
-            self.orderID) + "&".join(
+            self.order_id) + "&".join(
             ["29~0%s=%s" % (key, options[key]) for key in options.keys()])
 
-        addItemResponse = self.request(
+        add_item_response = self.request(
             SEAMLESS_AJAX_URL,
             postdata=pdata,
-            updateURL=False)
-        if addItemResponse.find("Successful") < 0:
+            update_url=False)
+        if add_item_response.find("Successful") < 0:
             self.log("Failed to add the item; not sure why.")
             return False
 
-        self.totalPrice += itemPrice
-        self.log("Successfully added " + desiredItem.text)
-        self.log("total price = %f" % self.totalPrice)
+        self.total_price += item_price
+        self.log("Successfully added " + desired_item.text)
+        self.log("total price = %f" % self.total_price)
         return True
 
-    def selectItems(self, itemSelector):
-        desiredItemCandidates = itemSelector.item_match(self.menu)
-        if len(desiredItemCandidates) == 0:
+    def select_items(self, item_selector):
+        desired_item_candidates = item_selector.item_match(self.menu)
+        if len(desired_item_candidates) == 0:
             self.log("No items selected!")
             return False
-        for desiredItem, optionSelector in desiredItemCandidates:
-            if not self.addItemToOrder(desiredItem, optionSelector):
+        for desired_item, option_selector in desired_item_candidates:
+            if not self.add_item_to_order(desired_item, option_selector):
                 return False
         return True
 
-    def checkout(self, phoneNumber=DEFAULT_PHONE):
+    def checkout(self, phone_number=DEFAULT_PHONE):
         # checkout
-        alloc = "%.2f" % (self.totalPrice * TIP)
+        alloc = "%.2f" % (self.total_price * TIP)
         year = datetime.datetime.now().year
 
-        pdata = "goToCheckout=NO&TotalAlloc=%s00&LineId=&saveFavoriteCommand=Checkout.m&WhichPage=Meals&favoriteNameOriginal=&firstCheckOut=Y&acceptedBudgetWarning=N&AcceptedWarnings=N&acceptedFavoriteWarning=N&FavoriteSaved=N&UserSearchType=&ShowAddUser=N&deliveryType=Delivery&EcoToGoOrderId=%s&EcoToGoUserId=%s&OverageAllocationAmt=0&InfoPopupfavorite_name=&InfoPopupfavorite_saveType=&InfoPopupfavorite_orderId=%s&AllocationAmt1=%s&FirstName=&LastName=&NewAllocationAmt=&allocCount=1&totalAllocated=$%s&AllocationComment=&typeOfCreditCard=&creditCardNumber=&CCExpireMonth=1&CCExpireYear=%d&creditCardZipCode=&CreditCardCVV=&saveCreditCardInfo=&ccClicked=no&ccTextChange=no&savedCCNumber=&savedCCType=&currentType=&OrderIdClicked=%s&FloorRoom=9&phoneNumber=%s&DeliveryComment=&EcoToGoOrder=Y&InfoPopup_name=Namethisfavorite&favoriteSaveMode=successWithOrderingMeals" % (
-            alloc, self.orderID, self.userID, self.orderID, alloc, alloc, year, self.orderID, phoneNumber)
+        pdata = "goToCheckout=NO&TotalAlloc=%s00&LineId=&saveFavoriteCommand=Checkout.m&WhichPage=Meals&favoriteNameOriginal=&firstCheckOut=Y&acceptedBudgetWarning=N&AcceptedWarnings=N&acceptedFavoriteWarning=N&FavoriteSaved=N&UserSearchType=&ShowAddUser=N&deliveryType=Delivery&EcoToGoOrderId=%s&EcoToGoUserId=%s&OverageAllocationAmt=0&InfoPopupfavorite_name=&InfoPopupfavorite_saveType=&InfoPopupfavorite_orderId=%s&AllocationAmt1=%s&FirstName=&LastName=&NewAllocationAmt=&allocCount=1&totalAllocated=$%s&AllocationComment=&typeOfCreditCard=&creditCardNumber=&CCExpireMonth=1&CCExpireYear=%d&creditCardZipCode=&CreditCardCVV=&saveCreditCardInfo=&ccClicked=no&ccTextChange=no&savedCCNumber=&savedCCType=&currentType=&OrderIdClicked=%s&FloorRoom=9&phone_number=%s&DeliveryComment=&EcoToGoOrder=Y&InfoPopup_name=Namethisfavorite&favoriteSaveMode=successWithOrderingMeals" % (
+            alloc, self.order_id, self.user_id, self.order_id, alloc, alloc, year, self.order_id, phone_number)
 
-        checkoutResponse = self.request(
+        checkout_response = self.request(
             SEAMLESS_CHECKOUT_URL,
             postdata=pdata,
-            updateURL=False)
-        parsedCheckoutResponse = BeautifulSoup.BeautifulSoup(checkoutResponse)
+            update_url=False)
+        parsed_checkout_response = BeautifulSoup.BeautifulSoup(checkout_response)
 
-        thanksMessage = [x for x in parsedCheckoutResponse(
+        thanks_message = [x for x in parsed_checkout_response(
             'div') if x.has_key('class') and "ThanksForOrder" in x['class']]
-        if len(thanksMessage) < 1:
+        if len(thanks_message) < 1:
             self.log(
                 "Looks like the order failed for some reason -- probably exceeded the meal allowance.")
-	    alertMessage = [x.text for x in parsedCheckoutResponse('div') if x.has_key('class') and "warningNote" in x['class']]
-            self.log("\n".join(alertMessage))
+	    alert_message = [x.text for x in parsed_checkout_response('div') if x.has_key('class') and "warningNote" in x['class']]
+            self.log("\n".join(alert_message))
             return False
 
-        thanksMessage = thanksMessage[0]
+        thanks_message = thanks_message[0]
         self.log("I think we successfully ordered lunch.")
         self.log("Here's the message from Seamless:")
         self.log(
-            re.sub('[ \t\n\r]+', ' ', "\n".join(map(lambda x: x.text, thanksMessage('h3')))))
+            re.sub('[ \t\n\r]+', ' ', "\n".join(map(lambda x: x.text, thanks_message('h3')))))
         return True
 
     def order(
             self,
-            loginCredentials,
-            phoneNumber,
+            login_credentials,
+            phone_number,
             selector,
-            dryRun=False,
+            dry_run=False,
             wk=None):
         wk = wk or datetime.datetime.now().strftime("%A")
         #
         self.log("Today is %s. Let's see if we need to order anything..." % wk)
         # login, grab group page
-        if not self.login(loginCredentials):
+        if not self.login(login_credentials):
             return 1
 
         # select restaurant, grab menu, user ID, and order ID
-        if not self.selectRestaurant(wk, selector):
+        if not self.select_restaurant(wk, selector):
             return 2
 
         # select items, add them to the cart
-        if not self.selectItems(selector):
+        if not self.select_items(selector):
             return 3
 
-        if not dryRun:
-            if not self.checkout(phoneNumber):
+        if not dry_run:
+            if not self.checkout(phone_number):
                 return 4
 
         return 0
