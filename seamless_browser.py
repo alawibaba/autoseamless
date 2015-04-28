@@ -270,7 +270,7 @@ class SeamlessBrowser:
             wk=None):
         wk = wk or datetime.datetime.now().strftime("%A")
         #
-        self.log("Today is %s. Let's see if we need to order anything..." % wk)
+        self.log("Selected day is %s. Let's see if we need to order anything..." % wk)
         # login, grab group page
         if not self.login(login_credentials):
             return 1

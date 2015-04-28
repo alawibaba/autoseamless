@@ -32,10 +32,13 @@ if __name__ == "__main__":
         selector = favorites.FavoritesSelector(args.favorites)
 
     login_credentials = open(args.credentials).readlines()[0].strip()
-    sys.exit(
-        seamless_browser.SeamlessBrowser(log).order(
-            login_credentials,
-            args.phone_number,
-            selector,
-            wk=args.day,
-            dry_run=args.dry_run))
+    try:
+      sys.exit(
+          seamless_browser.SeamlessBrowser(log).order(
+              login_credentials,
+              args.phone_number,
+              selector,
+              wk=args.day,
+              dry_run=args.dry_run))
+    except KeyboardInterrupt:
+        print "\n\nAbort."
