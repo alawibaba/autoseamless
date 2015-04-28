@@ -68,6 +68,8 @@ class SeamlessBrowser:
 
     def select_restaurant(self, wk, restaurant_selector):
         todays_restaurants = self.list_restaurants(wk)
+        if todays_restaurants is False:
+            return False
         desired_restaurant = restaurant_selector.restaurant_match(todays_restaurants)
 
         if len(desired_restaurant) == 0:

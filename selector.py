@@ -65,10 +65,13 @@ class InteractiveSelector(Selector):
                         choices.append(inp_id)
                     except KeyError:
                         continue
-                inp_id = i_select_basic(choices, labels)
+                inp_id = self.i_select_basic(choices, labels)
                 rvalue[all_options[inp_id]['name']] = all_options[inp_id]['value']
             elif inp_type == "checkbox":
                 print "Please select as many as you like (separate by commas)."
+                if 'max_included' in all_options[inp_ids[0]] and \
+                    all_options[inp_ids[0]]['max_included'] > 0:
+                        print "Up to %d is included in the base price." % all_options[inp_ids[0]]['max_included']
                 choices = [] ; labels = []
                 for idx, inp_id in zip(range(len(inp_ids)), inp_ids):
                     try:
@@ -76,14 +79,14 @@ class InteractiveSelector(Selector):
                         choices.append(inp_id)
                     except KeyError:
                         continue
-                selected_inp_ids = i_select_multi(choices, labels)
+                selected_inp_ids = self.i_select_multi(choices, labels)
                 for inp_id in selected_inp_ids:
                     rvalue[all_options[inp_id]['name']] = all_options[inp_id]['value']
         return rvalue
     def restaurant_match(self, restaurant_list):
-        return [self.i_select_basic(choices, map(lambda x: x.text, choices))]
+        return [self.i_select_basic(restaurant_list, map(lambda x: x.text, restaurant_list))]
     def item_match(self, item_list):
-        return [(self.i_select_basic(choices, map(lambda x: x.text, choices)), self.i_options)]
+        return [(self.i_select_basic(item_list, map(lambda x: x.text, item_list)), self.i_options)]
 
 class RegexSelector(Selector):
     def __init__(self, restaurant_re, items_re):
@@ -95,7 +98,7 @@ class RegexSelector(Selector):
             if self.restaurant_re.search(choice.text):
                 rvalue.append(choice)
         return rvalue
-    def options_match(options_re):
+    def options_match(self, options_re):
         def curry_select(all_options):
             rvalue = {}
             for inp_id in all_options.keys():
@@ -110,7 +113,7 @@ class RegexSelector(Selector):
         rvalue = []
         for choice in item_list:
             for item_re, options_re in self.items_re:
-                if self.item_re.search(choice.text):
+                if item_re.search(choice.text):
                     rvalue.append((choice, self.options_match(options_re)))
                     break
         return rvalue
