@@ -3,30 +3,46 @@ import re
 import selector
 import sys
 
-class FavoritesSelector(selector.Selector):
-    def __init__(self, fname):
-        self.choice = None
-        self.selections = {}
+MEAL_RE = re.compile(r'([^\{\},]+)(?:\{([^\}]*)\}([^\{\},]*))?(?:,|$)')
+
+def parse_favorites(filename):
+    """Parse favorites from the given filename.
+
+    Args:
+        filename: Filename to read from.
+    Returns:
+        Dictionary mapping from restaurant name to a list of meals.
+    """
+    with open(filename) as f:
         current_restaurant = None
-        for raw_line in open(fname):
+        result = {}
+        for raw_line in f:
             line = raw_line.strip()
             if line == "":
                 continue
-            elif line[0] == "#":
+            elif line.startswith("#"):
                 continue
-            elif line[0] == "[":
-                current_restaurant = line.strip()[1:-1]
-                self.selections[current_restaurant] = []
+            elif line.startswith("[") and line.endswith("]"):
+                current_restaurant = line[1:-1].strip()
+                result[current_restaurant] = []
                 continue
             # this line is a meal
-            match = re.compile('([^\{\},]+)(?:\{([^\}]*)\}([^\{\},]*))?(?:,|$)').findall(line)
+            match = MEAL_RE.findall(line)
             if match is None:
                 raise ValueError("bad line %s" % line)
-            self.selections[current_restaurant].append(
+            result[current_restaurant].append(
                 [((mpre + mpost).strip(),
-                  [opt.strip() for opt in opts.split(",") if opt.strip() != ''])
-                 for mpre, opts, mpost in match])
-    
+		  [opt.strip() for opt in opts.split(",") if opt.strip() != ''])
+                for mpre, opts, mpost in match)]
+
+        return result
+
+
+class FavoritesSelector(selector.Selector):
+    def __init__(self, fname):
+        self.choice = None
+        self.selections = parse_favorites(fname)
+
     def restaurant_match(self, restaurants):
         restaurant_choices = [] ; num_options = 0
         for x in self.selections.keys():
