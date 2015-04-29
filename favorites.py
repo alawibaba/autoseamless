@@ -33,7 +33,7 @@ def parse_favorites(filename):
             result[current_restaurant].append(
                 [((mpre + mpost).strip(),
 		  [opt.strip() for opt in opts.split(",") if opt.strip() != ''])
-                for mpre, opts, mpost in match)]
+                for mpre, opts, mpost in match])
 
         return result
 
