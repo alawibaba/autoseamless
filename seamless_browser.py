@@ -15,8 +15,10 @@ SEAMLESS_GROUP_ORDER_URL = "https://www.seamless.com/grouporder.m?SubVendorTypeI
 SEAMLESS_AJAX_URL = "https://www.seamless.com/Ajax.m"
 SEAMLESS_CHECKOUT_URL = "https://www.seamless.com/Checkout.m"
 
+REQUEST_LOG = None
+
 DEFAULT_PHONE = "(617)555-3000"
-TIP = 1.1
+DEFAULT_TIP = 1.1
 
 class SeamlessBrowser:
 
@@ -43,7 +45,15 @@ class SeamlessBrowser:
         self.url_opener.addheaders = [('User-agent', self.ua)] + headers
         if update_url:
             self.last_url = url
-        return self.url_opener.open(url, postdata).read()
+        response = self.url_opener.open(url, postdata).read()
+        if REQUEST_LOG:
+            REQUEST_LOG.write("url = %s\n" % url)
+            REQUEST_LOG.write("headers = %s\n" % str(headers))
+            REQUEST_LOG.write("postdata = %s\n" % str(postdata))
+            REQUEST_LOG.write("send_referer = %s\n" % str(send_referer))
+            REQUEST_LOG.write("update_url = %s\n" % str(update_url))
+            REQUEST_LOG.write("response:\n%s\n\n" % str(response))
+        return response
 
     def login(self, login_credentials):
         self.request(SEAMLESS_LOGIN_URL)
@@ -248,7 +258,7 @@ class SeamlessBrowser:
         # checkout
         alloc = self.get_order_summary()
         if alloc is None:
-            alloc = "%.2f" % (self.total_price * TIP)  # just guess!
+            alloc = "%.2f" % (self.total_price * DEFAULT_TIP)  # just guess!
         year = datetime.datetime.now().year
 
         pdata = "goToCheckout=NO&TotalAlloc=%s00&LineId=&saveFavoriteCommand=Checkout.m&WhichPage=Meals&favoriteNameOriginal=&firstCheckOut=Y&acceptedBudgetWarning=N&AcceptedWarnings=N&acceptedFavoriteWarning=N&FavoriteSaved=N&UserSearchType=&ShowAddUser=N&deliveryType=Delivery&EcoToGoOrderId=%s&EcoToGoUserId=%s&OverageAllocationAmt=0&InfoPopupfavorite_name=&InfoPopupfavorite_saveType=&InfoPopupfavorite_orderId=%s&AllocationAmt1=%s&FirstName=&LastName=&NewAllocationAmt=&allocCount=1&totalAllocated=$%s&AllocationComment=&typeOfCreditCard=&creditCardNumber=&CCExpireMonth=1&CCExpireYear=%d&creditCardZipCode=&CreditCardCVV=&saveCreditCardInfo=&ccClicked=no&ccTextChange=no&savedCCNumber=&savedCCType=&currentType=&OrderIdClicked=%s&FloorRoom=9&phone_number=%s&DeliveryComment=&EcoToGoOrder=Y&InfoPopup_name=Namethisfavorite&favoriteSaveMode=successWithOrderingMeals" % (
