@@ -6,6 +6,7 @@ import datetime
 import re
 import urllib2
 import urlparse
+import xml.etree.ElementTree
 
 USER_AGENT = "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36"
 
@@ -15,7 +16,7 @@ SEAMLESS_AJAX_URL = "https://www.seamless.com/Ajax.m"
 SEAMLESS_CHECKOUT_URL = "https://www.seamless.com/Checkout.m"
 
 DEFAULT_PHONE = "(617)555-3000"
-TIP = 1.15
+TIP = 1.1
 
 class SeamlessBrowser:
 
@@ -212,6 +213,7 @@ class SeamlessBrowser:
             SEAMLESS_AJAX_URL,
             postdata=pdata,
             update_url=False)
+
         if add_item_response.find("Successful") < 0:
             self.log("Failed to add the item; not sure why.")
             return False
@@ -231,9 +233,22 @@ class SeamlessBrowser:
                 return False
         return True
 
+    def get_order_summary(self):
+        pdata = "ajaxCommand=74~1&74~1CssClass=OrderStep3&74~1orderId=%s&74~1action=Save" % self.order_id
+        summary_response = self.request(
+            SEAMLESS_AJAX_URL,
+            postdata=pdata,
+            update_url=False)
+        match = re.compile('GrandTotal=\'\$([^\']*)\'').search(summary_response)
+        if match:
+            return match.group(1)
+        return None
+
     def checkout(self, phone_number=DEFAULT_PHONE):
         # checkout
-        alloc = "%.2f" % (self.total_price * TIP)
+        alloc = self.get_order_summary()
+        if alloc is None:
+            alloc = "%.2f" % (self.total_price * TIP)  # just guess!
         year = datetime.datetime.now().year
 
         pdata = "goToCheckout=NO&TotalAlloc=%s00&LineId=&saveFavoriteCommand=Checkout.m&WhichPage=Meals&favoriteNameOriginal=&firstCheckOut=Y&acceptedBudgetWarning=N&AcceptedWarnings=N&acceptedFavoriteWarning=N&FavoriteSaved=N&UserSearchType=&ShowAddUser=N&deliveryType=Delivery&EcoToGoOrderId=%s&EcoToGoUserId=%s&OverageAllocationAmt=0&InfoPopupfavorite_name=&InfoPopupfavorite_saveType=&InfoPopupfavorite_orderId=%s&AllocationAmt1=%s&FirstName=&LastName=&NewAllocationAmt=&allocCount=1&totalAllocated=$%s&AllocationComment=&typeOfCreditCard=&creditCardNumber=&CCExpireMonth=1&CCExpireYear=%d&creditCardZipCode=&CreditCardCVV=&saveCreditCardInfo=&ccClicked=no&ccTextChange=no&savedCCNumber=&savedCCType=&currentType=&OrderIdClicked=%s&FloorRoom=9&phone_number=%s&DeliveryComment=&EcoToGoOrder=Y&InfoPopup_name=Namethisfavorite&favoriteSaveMode=successWithOrderingMeals" % (
