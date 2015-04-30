@@ -1,6 +1,6 @@
-------------
-autoseamless
-------------
+---------------------------
+autoseamless |build-status|
+---------------------------
 
 Copyright (C) 2015 Ali Mohammad
 
@@ -25,3 +25,6 @@ Contributors:
 
 * Ali Mohammad
 * Corey Goldberg
+
+.. |build-status| image:: https://travis-ci.org/alawibaba/autoseamless.svg?branch=master
+   :target: https://travis-ci.org/alawibaba/autoseamless
