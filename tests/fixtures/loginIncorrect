@@ -1,0 +1,668 @@
+url = https://www.seamless.com/food-delivery/login.m
+headers = []
+postdata = None
+send_referer = True
+update_url = True
+response:
+﻿
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:og="http://ogp.me/ns#" xmlns:fb="http://ogp.me/ns/fb#">
+<head><script id="f5_cspm">(function(){var f5_cspm={f5_p:'MFLLNCGINKNEHCPOAJAABGFKBPCMFAEAOLAPKENDENABCBCKNDKMAOMKOJJAHCIFGHILNEIILBOEELIMACCGGMJPCAILDOFNJFFJELMENANEEOMBAEKJKDDFCHBLCPIA',setCharAt:function(str,index,chr){if(index>str.length-1)return str;return str.substr(0,index)+chr+str.substr(index+1);},get_byte:function(str,i){var s=(i/16)|0;i=(i&15);s=s*32;return((str.charCodeAt(i+16+s)-65)<<4)|(str.charCodeAt(i+s)-65);},set_byte:function(str,i,b){var s=(i/16)|0;i=(i&15);s=s*32;str=f5_cspm.setCharAt(str,(i+16+s),String.fromCharCode((b>>4)+65));str=f5_cspm.setCharAt(str,(i+s),String.fromCharCode((b&15)+65));return str;},set_latency:function(str,latency){latency=latency&0xffff;str=f5_cspm.set_byte(str,32,(latency>>8));str=f5_cspm.set_byte(str,33,(latency&0xff));str=f5_cspm.set_byte(str,27,2);return str;},wait_perf_data:function(){try{var wp=window.performance.timing;if(wp.loadEventEnd>0){var res=wp.loadEventEnd-wp.navigationStart;if(res<60001){var cookie_val=f5_cspm.set_latency(f5_cspm.f5_p,res);window.document.cookie='aaaaaaaaaaaaaaa='+encodeURIComponent(cookie_val)+';path=/';}
+return;}}
+catch(err){return;}
+setTimeout(f5_cspm.wait_perf_data,100);return;},go:function(){var chunk=window.document.cookie.split(/\s*;\s*/);for(var i=0;i<chunk.length;++i){var pair=chunk[i].split(/\s*=\s*/);if(pair[0]=='f5_cspm'){if(pair[1]=='1234'){var d=new Date();d.setTime(d.getTime()-1);window.document.cookie='f5_cspm=;expires='+d.toUTCString()+';path=/;';setTimeout(f5_cspm.wait_perf_data,100);}}}}}
+f5_cspm.go();}());</script>
+    <script type="text/javascript">
+        window['optimizely'] = window['optimizely'] || [];
+        window['optimizely'].push(['skipPageTracking']);
+    </script>
+	
+	
+	
+
+	
+	
+	
+
+    <title>
+        
+    
+    Log In | Seamless.com
+
+
+    </title>
+    <meta http-equiv="x-ua-compatible" content="IE=9,chrome=1" /> 
+    
+    <link href="/food-delivery/css/steps.min.css?404ae7" rel="stylesheet" type="text/css" />
+    
+    <script type="text/javascript" src="//use.typekit.com/wtz8mzr.js"></script>
+    <script type="text/javascript">        try { Typekit.load(); } catch (e) { }</script>
+    <!--[if IE]><link rel="stylesheet" type="text/css" href="/food-delivery/css/iehacks.css?404ae7"><![endif]-->
+    <!--[if IE 7]><link rel="stylesheet" type="text/css" href="/food-delivery/css/iehacks-7.css?404ae7"><![endif]-->
+    <!--[if IE 9]><link rel="stylesheet" type="text/css" href="/food-delivery/css/iehacks-9.css?404ae7"><![endif]-->
+    
+    <script src="//libs.coremetrics.com/eluminate.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var isCodeMetricsEnabledJS = typeof (cmSetClientID) === 'function';
+        var isCodeMetricsEnabledJS = false; if(typeof(cmSetClientID) === 'function') { cmSetClientID('90371525',true,'data.coremetrics.com','seamless.com'); var isCodeMetricsEnabledJS = true; }
+        cmSetupOther({'cm_TrackImpressions':''});
+    </script>
+    
+    
+    
+	<style type="text/css">
+	    .popup {width:auto;}
+	</style>
+    
+
+</head>
+<body>
+    
+    <div id="fb-root"></div>
+    <script>
+        window.fbAsyncInit = function () {
+            FB.init({
+                appId: '254327411274261',
+                status: true,
+                cookie: true,
+                xfbml: true
+            });
+        };
+        (function (d) {
+            var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+            if (d.getElementById(id)) { return; }
+            js = d.createElement('script'); js.id = id; js.async = true;
+            js.src = "//connect.facebook.net/en_US/all.js";
+            ref.parentNode.insertBefore(js, ref);
+        } (document));
+    </script>
+	<a name="topOfPage" id="topOfPage"></a>
+	
+
+<div class="top-bar">
+	<div class="container steps">
+		<div id="logo">
+		<a href="/">
+			<img src="/food-delivery/img/logo.png?404ae7" width="220" height="77" alt="Seamless Logo" /></a>
+		<p>
+			Your <strong>food</strong> is here.</p>
+		</div>
+		<!--logo-->
+		
+	    <ul class="top-nav">
+		<li><a id="order" title="Learn more about how a Seamless order works" href="javascript:void()">How it works</a></li>
+		<li><a href="http://blog.seamless.com/" target="_blank" title="Read the Seamless blog (opens in new window)">Blog</a></li>
+		<li><a href="/food-delivery/help.m"  target="_blank" title="Seamless help (opens in new window)">Help</a></li>
+		<li class="no-separator">
+		<a href="/food-delivery/login.m" id="login" class="fancyBox" title="Returning users log in here">Log in<span style="text-decoration:none"></span></a>
+		<a id="memberLoginarrow" href="/food-delivery/login.m" rel="nofollow" class="fancyBox" title="Returning users log in here"><img style="position:relative;top:2px;" src="/img/orange_arrow.png" /></a>
+		</li>
+	    </ul>
+	    
+	    <a href="/food-delivery/address.m" title="Go back to Step 1">
+		<div class="headerImage">
+		</div>
+	    </a>
+	    
+	    <br class="clear" />
+		
+		<div id="MainNav">
+			<ul id="OrderProgress">
+				<li id="AddressEntry"><a href="/food-delivery/address.m" title="Go back to step 1">
+					1. Enter Your Info</a></li>
+				<li id="VendorSelection"><a href="/food-delivery/vendors.m" title="Go back to step 2 to select a different restaurant">
+					2. Select a Restaurant</a></li>
+				<li id="MenuSelection"><a href="/food-delivery/menu.m" title="Go back to step 3 to add to your order">
+					3. Order from the Menu</a></li>
+				<li id="Checkout" class="no-separator">4. Checkout</li>
+			</ul>
+		</div>
+	
+		<!--mainnav-->
+	</div>
+	<!--container steps-->
+    </div>
+    <!--topbar-->
+    
+<div class="container" id="topContainer">
+    <div class="howItWorks">
+	<p class="mainHeader">
+	    We exist to make hungry people happy</p>
+	<p class="subHeader">
+	    We get people the food they want, when they want - wherever they are. It's simple...</p>
+	<div id="IconsContainer" class="container round-corners-ten">
+	    <a id="closeWindow">[ close ]</a>
+	    <div class="fourcol first">
+		<img src="/food-delivery/img/about/about_seamless_couple.png?404ae7" alt="Seamless customers" />
+		<p class="smallHeader">
+		    You place your order</p>
+		<p>
+		    Simply order whatever you or your coworkers are hungry for at Seamless.com or using
+		    the Seamless smartphone app.</p>
+	    </div>
+	    <div class="fourcol">
+		<img src="/food-delivery/img/about/about_seamless_restaurant.png?404ae7" alt="Media devices connecting to restaurants through Seamless" />
+		<p class="smallHeader">
+		    We send it to the restaurant</p>
+		<p>
+		    We immediately beam your order to the restaurant and they send you a confirmation
+		    email with delivery or pickup time estimate.
+		</p>
+	    </div>
+	    <div class="fourcol last">
+		<img src="/food-delivery/img/about/about_seamless_delivery.png?404ae7" alt="Delivery guy with Seamless customer" />
+		<p class="smallHeader">
+		    Your food arrives...Yum!</p>
+		<p>
+		    When your food’s ready, the restaurant delivers it or you pick it up. All you have
+		    to do is sign for it and enjoy it!</p>
+	    </div>
+	</div>
+	<!--end of the icons zone-->
+	<div class="fourcol right last">
+	    <input type="button" class="button" id="closeWindow2" value="Ready to Order"/>
+	    <br class="clear" />
+	    <br />
+	    <a href="/about-us/" onclick="window.open(this.href, 'popupwindow', 'width=1150,height=800,scrollbars,resizable'); return false;"
+		title="About Seamless (opens in new window)" id="LearnMore">Learn More &raquo;</a>
+	    <br class="clear" />
+	</div>
+    </div>
+    <!--how-->
+</div>
+<!--container-->
+
+    
+    <div id="MessageArea" class="" >
+	
+    </div>
+    
+    <div id="HeaderContainer" class="index">
+	<div class="container">
+	    
+    <div class="container" id="login">
+	    
+<div class="popup" style="width: 450px; height: 300px;">
+    <h2 id="returningUser">
+	Log in to your account</h2>
+    <form name="loginForm" id="loginForm" method="post" action="https://www.seamless.com/food-delivery/login.m">
+    <input type="hidden" name="ReturnUrl" id="ReturnUrl" value="/food-delivery/address.m" />
+    <label for="username" class="login first">
+	Email: (username for corporate members)</label>
+    
+      <input type="text" id="username" name="username" onkeypress="defaultJs.submitOnEnterKey('loginForm', event);" class="login {required:true, messages:{required:'Email or username is required.'}}" value="" />
+     
+	
+    <label for="password" class="login">
+	Password:</label>
+     
+     <input type="password" id="password1" name="password" onkeypress="defaultJs.submitOnEnterKey('loginForm', event);" class="login {required:true, messages:{required:'Password is required.'}}" />
+     
+    
+    <div id="passwordloginRequired" class="errorexplanation" style="display: none;">
+    </div>
+    <h4 class="button left">
+	<a href="javascript:void(0)" onclick="jQuery('#loginForm').submit(); return false;" id="submitLogin">
+	    Log In</a>
+    </h4>
+    </form>
+    <br class="clear" />
+    <p class="forgot">
+	Forgot your <a href="/food-delivery/forgotusername.m">username</a>
+	or <a href="/PasswordResetRequest.m">password</a>?
+    </p>
+    
+	<br />
+	If this is your first order on Seamless, <strong>you do NOT need to login or create an account</strong>. 
+	<br />Simply <a href="/food-delivery/" title="Click here to get started on your first order!">enter your address</a>, and place your first order...we'll do the rest!
+    
+    <br />
+</div>
+
+    </div>
+
+	    <div class="backtotop">
+		<a href="#">back to top</a></div>
+	</div>
+	<!--container-->
+    </div>
+    <!--HeaderContainer-->
+
+    
+	
+	
+
+    <div id="footer" class="round-corners-ten">
+        <div class="container">
+            <ul id="MainMenu">
+                <li class="threecol first"><span>Get to Know Us</span>
+                <ul class="sub-menu">
+		    <li><a href="/about-us/"  target="_blank" >About Seamless</a></li>
+                    <li>
+                    <a id="order2" href="javascript:void();" >How Our Ordering Works</a></li>
+                    <li>
+		    
+                    <a href="/mobile-apps/"  target="_blank" title="Learn more about Seamless' mobile apps">Mobile Apps</a>
+
+		    
+		    </li>
+                    <li>
+                    
+                    <li>
+                    <a href="/careers/"  target="_blank" title="View Seamless' current job openings">Careers</a></li>
+                    <li>
+                    <a href="http://blog.seamless.com/"  target="_blank"  title="Read the official blog">Our Blog, The Delivery Bag</a></li>
+                    <li>
+                    <a href="http://seamlessweb-news.tumblr.com/main"  target="_blank" title="Seamless in the news">Seamless Press</a></li>
+                     
+                </ul>
+                </li>
+                <!--aboutSeamless-->
+            
+                <li class="threecol" id="BusinessSolutions"><span>Business Solutions</span>
+                <ul class="sub-menu">
+                    <li>
+                    <a href="/restaurant-partners/"  target="_blank"  title="Sign up to join the Seamless restaurant network">Join Our Restaurant Network</a></li>
+                    <li>
+                    <a href="/business/"  target="_blank"  title="Learn more about Seamless company accounts">Learn About Company Accounts</a></li>
+                    <li>
+                    <a href="/business-development/affiliates/" target="_blank" title="Learn about Seamless affiliate opportunities">Become an Affiliate</a></li>
+                    <li>
+                </ul>
+                </li>
+                <!--businessSolutions-->
+                <li class="threecol" id="ShareWithFriends">
+                <span>Share With Friends</span>
+                <ul class="sub-menu">
+		    
+		    <li>
+                    <a href="http://seamless.extole.com/micro/microsite?source=footer"  target="_blank"  title="Share Seamless with friends to earn rewards!">Tell Your Friends</a></li>
+		    
+		    <li>
+                    <a href="http://twitter.com/seamless"  target="_blank">Follow @Seamless on Twitter</a></li>
+                    <li>
+                    <a href="http://www.facebook.com/Seamless"  target="_blank">Like Seamless on Facebook</a></li>
+                </ul>
+                </li>
+                <!--siteInformation-->
+                <li class=" last">
+		<span>Contact &amp Help</span>
+                <ul class="sub-menu">
+		    <li>
+		    <a href="/contact-us/"  target="_blank" title="Contact Seamless (link opens in a new window)">Contact Us</a></li>
+                    <li>
+                    <a href="/food-delivery/help.m"  target="_blank">Help</a></li>
+		    <li>
+		    <a href="/food-delivery/suggestrestaurant.m"  target="_blank" title="Suggest a restaurant to add to the Seamless network">Suggest a Restaurant</a></li>
+                    
+		</ul>
+		</li>
+                <!--customerService-->
+            </ul>
+            <p class="copyright">
+                &copy;
+                2015
+                Seamless North America, LLC.
+                All Rights Reserved. &bull;
+		<a href="/business/conditions.html"  target="_blank" title="Link opens in a new window">Terms of Use</a> 
+		&bull;
+                <a href="/business/privacy.html"  target="_blank" title="Link opens in a new window">Privacy Policy</a>
+            </p>
+        </div>
+        <!--container-->
+    </div>
+    <!--footer-->
+    <div id="Overlay" style="display: none;"></div>
+    
+    
+    <script src="/food-delivery/javascript/consumer/steps.min.js?404ae7" type="text/javascript"></script>
+    
+    
+    <script src="https://www.seamless.com/html/interstitial/interstitial.js?v2.16" type="text/javascript"></script>
+    <script type="text/javascript">
+        if ($('.g-plusone').length) {
+            (function () {
+                var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                po.src = 'https://apis.google.com/js/plusone.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+            })();
+        }
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            defaultJs.setBackgroundImage('//content.seamless.com/swdesign/img/background/landingpage-tacos-20140730.jpg');
+            defaultJs.setRootPath('/food-delivery');
+            defaultJs.setupAjaxRequestDefaults('/food-delivery/login.m');
+            defaultJs.stepsMenu.init();
+            defaultJs.fancyBox.init($('.fancyBox'));
+            defaultJs.ratings.init();
+            defaultJs.clueTips();
+        });
+       
+    </script>
+    <script src="/food-delivery/javascript/ga_social_tracking.js?404ae7" type="text/javascript"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            _ga.trackFacebook();
+            _ga.trackTwitter();
+        }
+    </script>
+    
+    <script type="text/javascript">
+        $(function () {
+            $('#login').parent().hide();
+            $('#loginForm').validate();
+            $('#username').focus();
+            $('#login.container').css('top', '-50px');
+            $('#login.container').css('height', $('#login.container').height() - 50);
+            $('.backtotop').hide();
+            $('#HeaderContainer>div.container').css('height', $('#HeaderContainer>div.container').height() - 50);
+        });
+    </script>
+
+    
+    <script src="/food-delivery/javascript/cmCustom.min.js?404ae7" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+        if ($.isFunction(cmCreateCustomPageviewTag)) { cmCreateCustomPageviewTag("Consumer-Login", "LOGIN", null, null, null); }
+    </script>
+
+    <script>document.write('<s'+'cript type="text/javascript" src="https://view.atdmt.com/jaction/SeamlessWeb_Remarketing__Secure"></s'+'cript>')</script><noscript><iframe src="https://view.atdmt.com/iaction/SeamlessWeb_Remarketing__Secure" width="1" height="1" frameborder="0" scrolling="No" marginheight="0" marginwidth="0" topmargin="0" leftmargin="0"></iframe></noscript>
+    
+
+    <!--analytics code --><script type='text/javascript'>var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-229205-4']);_gaq.push(['_trackPageview']);(function () {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(ga, s);})();</script>
+    
+    <script type="text/javascript">
+  (function () {
+    var tagjs = document.createElement("script");
+    var s = document.getElementsByTagName("script")[0];
+    tagjs.async = true;
+    tagjs.src = "//s.btstatic.com/tag.js#site=DnBHJ7d";
+    s.parentNode.insertBefore(tagjs, s);
+  }());
+</script>
+<noscript>
+  <iframe src="//s.thebrighttag.com/iframe?c=DnBHJ7d" width="1" height="1" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+</noscript>
+
+    <script type="text/javascript"> var pageData = {
+  "CompletedOrder": {
+    "RestaurantID": null,
+    "DeliveryAddress": null,
+    "OrderID": null,
+    "OrderType": null,
+    "OrderTotal": null,
+    "PromoCode": null,
+    "DinerType": null
+  },
+  "Diner": {
+    "UserID": null,
+    "FirstName": null,
+    "LastName": null,
+    "EmailAddress": null
+  }
+}; </script>
+</body>
+</html>
+
+
+url = https://www.seamless.com/food-delivery/login.m
+headers = [('referer', 'https://www.seamless.com/food-delivery/login.m')]
+postdata = ReturnUrl=%2Ffood-delivery%2Faddress.m&username=OttoLunch&password=OttosStupidPassword
+send_referer = True
+update_url = True
+response:
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><script id="f5_cspm">(function(){var f5_cspm={f5_p:'FCIIHKCPBCOMFKGICOMDGLFLJINIOANMEHLFKFHCLEIBLAENPHKMMGADNJCAEOLCIKOBNPDPFKHFHBMLAECECALKNNIMHFBIIJMLBJEPBJNBKILMKHEJFGNDGMDIOGME',setCharAt:function(str,index,chr){if(index>str.length-1)return str;return str.substr(0,index)+chr+str.substr(index+1);},get_byte:function(str,i){var s=(i/16)|0;i=(i&15);s=s*32;return((str.charCodeAt(i+16+s)-65)<<4)|(str.charCodeAt(i+s)-65);},set_byte:function(str,i,b){var s=(i/16)|0;i=(i&15);s=s*32;str=f5_cspm.setCharAt(str,(i+16+s),String.fromCharCode((b>>4)+65));str=f5_cspm.setCharAt(str,(i+s),String.fromCharCode((b&15)+65));return str;},set_latency:function(str,latency){latency=latency&0xffff;str=f5_cspm.set_byte(str,32,(latency>>8));str=f5_cspm.set_byte(str,33,(latency&0xff));str=f5_cspm.set_byte(str,27,2);return str;},wait_perf_data:function(){try{var wp=window.performance.timing;if(wp.loadEventEnd>0){var res=wp.loadEventEnd-wp.navigationStart;if(res<60001){var cookie_val=f5_cspm.set_latency(f5_cspm.f5_p,res);window.document.cookie='aaaaaaaaaaaaaaa='+encodeURIComponent(cookie_val)+';path=/';}
+return;}}
+catch(err){return;}
+setTimeout(f5_cspm.wait_perf_data,100);return;},go:function(){var chunk=window.document.cookie.split(/\s*;\s*/);for(var i=0;i<chunk.length;++i){var pair=chunk[i].split(/\s*=\s*/);if(pair[0]=='f5_cspm'){if(pair[1]=='1234'){var d=new Date();d.setTime(d.getTime()-1);window.document.cookie='f5_cspm=;expires='+d.toUTCString()+';path=/;';setTimeout(f5_cspm.wait_perf_data,100);}}}}}
+f5_cspm.go();}());</script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <title>Bad Login | Seamless.com</title>
+    <script type="text/javascript" src="./javascript/jquery.js?_14a3e7a9_30ee_45c7_8511_b0b531f2d21c"></script>
+    <script type="text/javascript" src="./javascript/boxover.js?_14a3e7a9_30ee_45c7_8511_b0b531f2d21c"></script>
+    <script type="text/javascript" src="./javascript/supersized.3.1.3.core.min.js?_14a3e7a9_30ee_45c7_8511_b0b531f2d21c"></script>
+    <link rel="stylesheet" href="./css/supersized.core.css?_14a3e7a9_30ee_45c7_8511_b0b531f2d21c" media="all" />
+    <link rel="stylesheet" href="./css/master-page.css?_14a3e7a9_30ee_45c7_8511_b0b531f2d21c" media="all" />
+    <link rel="stylesheet" href="./css/ancillary.css?_14a3e7a9_30ee_45c7_8511_b0b531f2d21c" media="all" />
+    <script type="text/javascript" src="../javascript/ValidationErrors.js?_14a3e7a9_30ee_45c7_8511_b0b531f2d21c"></script>
+    <script type="text/javascript" src="//use.typekit.com/wtz8mzr.js"></script>
+    <script type="text/javascript">        try { Typekit.load(); } catch (e) { }</script>
+    <script type="text/javascript">
+        function doPost(form, url) {
+            form.action = url;
+            form.submit();
+        }
+        function EngageLogin(e) {
+            var keycode;
+
+            if (window.event) keycode = window.event.keyCode;
+            else if (e) keycode = e.which;
+
+            if (keycode == 13) {
+                doPost(document.badloginForm, 'https://www.seamless.com/SubmitLogin.m');
+            }
+        }
+    </script>
+    <script type="text/javascript">
+        jQuery(function () {
+            jQuery.supersized({
+                //Background image
+                slides: [{ image: '//content.seamless.com/swdesign/img/background/landingpage-tacos-20140730.jpg'}],
+                vertical_center: 0,
+                min_width: 1700,
+                min_height: 1053
+            });
+        });
+    </script>
+</head>
+<body>
+    
+    <div class="container" id="usernamePW">
+	<div class="top-bar">
+	    <!--top-bar-->
+	    <div class="container">
+		<div id="logo">
+		    <a href="http://www.seamless.com/">
+			<img src="img/logo.png?_14a3e7a9_30ee_45c7_8511_b0b531f2d21c" width="220" height="77" alt="Seamless Logo" /></a>
+		    <p>
+			Your <strong>food</strong> is here.</p>
+		</div>
+		<!--logo-->
+		<ul class="top-nav">
+		    <li><a id="order" rel="nofollow" title="Learn more about how a Seamless order works"
+			href="#">How it works</a></li>
+		    <li><a href="http://thedeliverybag.com/" onclick="window.open(this.href, 'popupwindow', 'width=1000,height=760,scrollbars,resizable'); return false;"
+			title="Read the Seamless blog (opens in new window)">Blog</a></li>
+		    <li class="no-separator"><a href="http://www.seamless.com/food-delivery/help.m"
+			onclick="window.open(this.href, 'popupwindow', 'width=1000,height=760,scrollbars,resizable'); return false;"
+			title="Seamless Help (opens in a new window)">Help</a></li>
+		</ul>
+	    </div>
+	</div>
+	
+<div class="container" id="topContainer">
+    <div class="howItWorks">
+	<p class="mainHeader">
+	    We exist to make hungry people happy</p>
+	<p class="subHeader">
+	    We get people the food they want, when they want - wherever they are. It's simple...</p>
+	<div id="IconsContainer" class="container round-corners-ten">
+	    <a id="closeWindow">[ close ]</a>
+	    <div class="fourcol first">
+		<img src="/img/about/about_seamless_couple.png?417ca9" alt="Seamless customers" />
+		<p class="smallHeader">
+		    You place your order
+		</p>
+		<p>
+		    Simply order whatever you or your coworkers are hungry for at Seamless.com or using
+		    the Seamless smartphone app.</p>
+	    </div>
+	    <div class="fourcol">
+		<img src="/img/about/about_seamless_restaurant.png?417ca9" alt="Media devices connecting to restaurants through Seamless" />
+		<p class="smallHeader">
+		    We send it to the restaurant</p>
+		<p>
+		    We immediately beam your order to the restaurant and they send you a confirmation
+		    email with delivery or pickup time estimate.
+		</p>
+	    </div>
+	    <div class="fourcol last">
+		<img src="/img/about/about_seamless_delivery.png?417ca9" alt="Delivery guy with Seamless customer" />
+		<p class="smallHeader">
+		    Your food arrives...Yum!</p>
+		<p>
+		    When your food’s ready, the restaurant delivers it or you pick it up. All you have
+		    to do is sign for it and enjoy it!</p>
+	    </div>
+	</div>
+	<!--end of the icons zone-->
+	<div class="fourcol right last">
+	    <input type="button" class="button" id="closeWindow2" value="Ready to Order"/>
+	    <br class="clear" />
+	    <a href="/about-us/" onclick="window.open(this.href, 'popupwindow', 'width=1100,height=800,scrollbars,resizable'); return false;"
+		title="About Seamless (opens in new window)" id="LearnMore">Learn More &raquo;</a>
+	    <br class="clear" />
+	</div>
+	
+    </div>
+    <br class="clear" />
+    
+    <!--how-->
+</div>
+<!--container-->
+
+	<div id="BodyContainer">
+	    <div class="container">
+		<div name="AlertMessage" id="AlertMessage" >
+<div class="largeText warningNote">Oops! Looks like you entered an invalid e-mail address/username. Please try again.</div></div> <!--AlertMessage-->
+<script>
+function ShowConfirmationDialogsIfAny(){
+}
+</script>
+
+		<h1>
+		    Try logging in again:</h1>
+		<form name="badloginForm" id="badloginForm" method="post" action="https://www.seamless.com/SubmitLogin.m">
+		<label for="badloginusername">
+		    Email: (username for corporate members)
+		    <input type="text" id="badloginusername" name="username" tabindex="1" onkeypress="EngageLogin(event);"
+			onkeyup="RemoveErrorForLogin('badloginusername', 'Username is required.', 'login', 'badloginusername');" /></label>
+		<label for="badloginpassword">
+		    Password:
+		    <input type="password" id="badloginpassword" name="password" tabindex="2" onkeypress="EngageLogin(event);"
+			onkeyup="RemoveErrorForLogin('badloginpassword', 'Password is required.', 'login', 'badloginpassword');" /></label>
+		<h4 class="button">
+		    <a rel="nofollow" title="Log in to your account" tabindex="3" href="javascript:doPost(document.badloginForm, 'https://www.seamless.com/SubmitLogin.m');"
+			onclick="return(ValidateConsumerLogin('badloginusername','badloginpassword'));">
+			Log in</a></h4>
+		</form>
+		<br />
+		<p id="enter">
+		    Forgot your <a href="ForgotUsername.m">username</a> or <a href="PasswordResetRequest.m">password</a>?</p>
+		<p id="NoAccount">
+		If this is your first order on Seamless, <strong>you do NOT need to login or create an account</strong>. <br />Simply click <a href="/food-delivery/" title="Click here to get started on your first order!">here</a> to enter your address and place your first order...we'll do the rest!
+		</p>
+	    </div>
+	</div>
+    </div>
+    <!--container#usernamePW-->
+    <br class="clear" />
+    
+
+<div id="footer" class="round-corners-ten">
+    <!--[if IE]>
+		<div></div>
+		<div class="border right-b"></div>
+	    <![endif]-->
+    <div class="container">
+	<div class="threecol first">
+	    <span>Get to Know Us</span>
+	    <ul>
+		<li><a href="/about-us/"  target="_blank" >About Seamless</a></li>
+		
+		<li><a href="/mobile-apps/"  target="_blank"  title="Learn more about Seamless' mobile apps">Mobile Apps</a></li>
+		
+		<li><a href="/careers/"  target="_blank" title="View Seamless' current job openings">Careers</a></li>
+		<li><a href="http://blog.seamless.com/"  target="_blank" title="Read the official blog">Our Blog, The Delivery Bag</a></li>
+		<li><a href="http://seamlessweb-news.tumblr.com/main"  target="_blank" title="Seamless in the news">Seamless Press</a></li>
+        
+	    </ul>
+	</div>
+	<div class="threecol">
+	    <span>Business Solutions</span>
+	    <ul>
+		<li><a href="/restaurant-partners/"  target="_blank" title="Sign up to join the Seamless restaurant network">Join Our Restaurant Network</a></li>
+		<li><a href="/business/"  target="_blank" title="Learn more about Seamless company accounts">Learn About Company Accounts</a></li>
+		<li><a href="/business-development/affiliates/"  target="_blank" title="Learn about Seamless affiliate opportunities">Become an Affiliate</a></li>
+	    </ul>
+	</div>
+	<div class="threecol">
+	    <span>Share With Friends</span>
+	    <ul>
+	    
+		<li><a href="http://seamless.extole.com/micro/microsite?source=footer"  target="_blank" title="Share Seamless with friends to earn rewards!">Tell Your Friends</a></li>
+		
+		<li><a href="http://twitter.com/seamless"  target="_blank">Follow @Seamless on Twitter</a></li>
+		<li><a href="http://www.facebook.com/Seamless"  target="_blank">Like Seamless on Facebook</a></li>
+	    </ul>
+	</div>
+
+	<div class="threecol last">
+	    <span>Contact &amp Help</span>
+	    <ul>
+		<li><a href="/contact-us/"  target="_blank" >Contact Us</a></li>
+		
+        <li><a href="http://www.seamless.com/food-delivery/help.m"  target="_blank" >Help</a></li>
+		<li><a href="/food-delivery/suggestrestaurant.m"  target="_blank" title="Suggest a restaurant to add to the Seamless network">Suggest a Restaurant</a></li>
+		
+		<li>800.905.9322</li>
+		<li><a href="mailto:care@seamless.com">care@seamless.com</a></li> 
+		
+	    </ul>
+	</div>
+	<p class="copyright">
+	    &copy; 2015 Seamless
+	     North America, LLC.
+	    All Rights Reserved. &bull; <a href="http://www.seamless.com/business/conditions.html"  target="_blank" 
+		title="Link opens in a new window">Terms of Use</a> &bull; <a href="http://www.seamless.com/business/privacy.html"
+		    target="_blank" 
+		    title="Link opens in a new window">Privacy Policy</a> 
+	</p>
+    </div>
+    <!--container-->
+</div>
+<!--footer-->
+
+    
+    <script src="//libs.coremetrics.com/eluminate.js" type="text/javascript"></script>
+    <script src="/javascript/cmCustom.min.js?417ca9" type="text/javascript"></script>
+    <script type="text/javascript">var isCodeMetricsEnabledJS = false; if(typeof(cmSetClientID) === 'function') { cmSetClientID('90371525',true,'data.coremetrics.com','seamless.com'); var isCodeMetricsEnabledJS = true; }</script>
+    <script type="text/javascript">cmCreateCustomPageviewTag("Submit-Login-Invalid", "LOGIN");</script>
+    
+    <script type="text/javascript">
+
+        //toggles the 'How it works' content
+        jQuery.noConflict();
+        jQuery(document).ready(function () {
+            jQuery('div.howItWorks').hide();
+            jQuery('a#order').click(function () {
+                jQuery('div.howItWorks').slideToggle('slow');
+            });
+            jQuery('a#closeWindow').click(function () {
+                jQuery('div.howItWorks').slideUp("slow");
+            });
+            jQuery('input#closeWindow2').click(function () {
+                jQuery('div.howItWorks').slideUp("slow");
+            });
+        });            
+        
+    </script>
+</body>
+</html>
+
+
