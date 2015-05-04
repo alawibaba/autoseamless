@@ -21,8 +21,18 @@ DEFAULT_PHONE = "(617)555-3000"
 DEFAULT_TIP = 1.1
 
 class SeamlessBrowser:
+    """The interface between python and the seamless website. (This is the seam,
+    if you will.) This was not written, but emerged fully-formed from the head
+    of Zeus."""
 
     def __init__(self, log):
+        """Constructor.
+
+        Arguments:
+        log -- A method that takes strings for input and does whatever it wants
+               with them, like printing them out, writing them to a file, or
+               broadcasting them to all and sundry.
+        """
         self.ua = USER_AGENT
         self.cookie_jar = cookielib.CookieJar()
         self.url_opener = urllib2.build_opener(
@@ -38,6 +48,22 @@ class SeamlessBrowser:
             postdata=None,
             send_referer=True,
             update_url=True):
+        """Issue a low-level request (called an HTTP request) to seamless via
+        its undocumented API. Never do this.
+
+        Arguments:
+        url -- The URL to request.
+        headers -- A list of tuples (keyword, value pairs) to include as HTTP
+                   headers.
+        postdata -- A URL-encoded string of post data (default: None, indicating
+                    a GET request).
+        send_referer -- Include the last URL requested via the HTTP-Referer
+                        header (default: True).
+        update_url -- Record this URL as the last URL -- you should set this to
+                      False for AJAX-like requests (default: True).
+
+        Returns the response (as a string).
+        """
         if self.last_url:
             url = urlparse.urljoin(self.last_url, url)
         if send_referer and self.last_url and self.last_url != "":
@@ -57,6 +83,14 @@ class SeamlessBrowser:
         return response
 
     def login(self, login_credentials):
+        """Attempt to login to seamless.
+
+        Arguments:
+        login_credentials -- Seamless login credentials (as a post string), like:
+                             username=OttoLunch&password=OttosStupidPassword
+
+        Returns True if the login was successful, and False otherwise.
+        """
         self._request(SEAMLESS_LOGIN_URL)
         group_order = self._request(
             SEAMLESS_LOGIN_URL,
@@ -70,6 +104,13 @@ class SeamlessBrowser:
         return True
 
     def list_restaurants(self, wk):
+        """Return a list of restaurants for the given day.
+
+        Arguments:
+        wk -- The day of the week, as a string (e.g., "Wednesday").
+
+        Returns a list of restaurants, or False if there aren't any.
+        """
         todays_tag = self.parsed_group_order.find('h3', text=re.compile(wk))
         if todays_tag is None:
             self.log(
@@ -79,6 +120,17 @@ class SeamlessBrowser:
         return todays_tag.findNextSibling("ul").findChildren("a")
 
     def select_restaurant(self, wk, restaurant_selector):
+        """Select the restaurant you'd like to order from.
+
+        Arguments:
+        wk -- The day of the week, as a string (e.g., "Wednesday").
+        restaurant_selector -- A method that takes a list of restaurants
+                               as a parameter, and returns a list.
+
+        Returns True if the restaurant was chosen successfully, and
+        False otherwise.
+        """
+
         todays_restaurants = self.list_restaurants(wk)
         if todays_restaurants is False:
             return False
@@ -130,6 +182,22 @@ class SeamlessBrowser:
         return True
 
     def fetch_item_page_options(self, desired_item):
+        """Requests the item description page for the desired item.
+
+        Arguments:
+        desired_item -- The item you'd like, as a BeautifulSoup object.
+
+        Returns item_page, parsed_item_page, form_defaults, all_options,
+        radio_buttons, and check_boxes, where:
+          item_page -- The item description page, as a string.
+          parsed_item_page -- The item description page, as a BeautifulSoup
+                              object.
+          form_defaults -- The default options as a dictionary.
+          all_options -- A list of all possible options.
+          radio_buttons -- List of options that are radio buttons.
+          check_boxes -- List of options that are check boxes.
+        """
+
         item_url_re = re.compile("MealsMenuSelectionPopup.m[^']*'")
         match = item_url_re.search(desired_item['href'])
         if match is None:
@@ -180,6 +248,17 @@ class SeamlessBrowser:
         return item_page, parsed_item_page, form_defaults, all_options, radio_buttons, check_boxes
 
     def add_item_to_order(self, desired_item, update_options=None):
+        """Add an item to your order.
+
+        Arguments:
+        desired_item -- The item you'd like.
+        update_options -- A method for selecting the options you'd like
+                          (default: None, meaning just use the
+                          defaults).
+
+        Returns True if the item was added successfully, and False otherwise.
+        """
+
         item_page, parsed_item_page, form_defaults, all_options, radio_buttons, check_boxes = self.fetch_item_page_options(desired_item)
 
         original_price_match = re.compile("originalPrice = '([.0-9]*)';").search(item_page)
@@ -235,6 +314,16 @@ class SeamlessBrowser:
         return True
 
     def select_items(self, item_selector):
+        """Select the items you'd like.
+
+        Arguments:
+        restaurant_selector -- A method that takes a list of items
+                               as a parameter, and returns a list.
+
+        Returns True if the item(s) were added successfully, and
+        False otherwise.
+        """
+
         desired_item_candidates = item_selector.item_match(self.menu)
         if len(desired_item_candidates) == 0:
             self.log("No items selected!")
@@ -245,6 +334,12 @@ class SeamlessBrowser:
         return True
 
     def get_order_summary(self):
+        """Requests the current order total from seamless.
+
+        Returns the current total if possible, None if the request
+        fails for any reason.
+        """
+
         pdata = "ajaxCommand=74~1&74~1CssClass=OrderStep3&74~1orderId=%s&74~1action=Save" % self.order_id
         summary_response = self._request(
             SEAMLESS_AJAX_URL,
@@ -256,6 +351,15 @@ class SeamlessBrowser:
         return None
 
     def checkout(self, phone_number=DEFAULT_PHONE):
+        """Attempt to complete the current order.
+
+        Arguments:
+        phone_number -- Who do you want Seamless to call if they need help?
+                        (default: seamless_browser.DEFAULT_PHONE)
+
+        Returns True if the order was placed successfully, and False otherwise.
+        """
+
         # checkout
         alloc = self.get_order_summary()
         if alloc is None:
@@ -294,6 +398,25 @@ class SeamlessBrowser:
             selector,
             dry_run=False,
             wk=None):
+        """Login to Seamless, select restaurant, add items, select options,
+        and complete the order.
+
+        Arguments:
+        login_credentials -- Seamless login credentials (as a post string), like:
+                             username=OttoLunch&password=OttosStupidPassword
+        phone_number -- Who do you want Seamless to call if they need help?
+        selector -- A selector.Selector instance.
+        dry_run -- Create the order, but don't actually place it (default: False).
+        wk -- The day of the week, as a string (default: today).
+
+        Return value:
+        0 - Successful order.
+        1 - Login incorrect.
+        2 - Restaurant selection failed.
+        3 - Item selection failed.
+        4 - Checkout failed.
+        """
+
         wk = wk or datetime.datetime.now().strftime("%A")
         #
         self.log("Selected day is %s. Let's see if we need to order anything..." % wk)
