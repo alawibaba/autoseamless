@@ -271,6 +271,10 @@ class SeamlessBrowser:
         options = {}
         options.update(form_defaults)
         if update_options:
+            # clear unselected check_boxes
+            for k in check_boxes:
+                if k in options:
+                    del options[k]
             options.update(update_options(all_options))
 
         # compute the price
