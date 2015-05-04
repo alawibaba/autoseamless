@@ -1,0 +1,11 @@
+# A fake favorites file
+[Viva Burrito]
+Shrimp Quesadilla, Chips with Salsa
+
+[India Palace]
+Chole Saag - Lunch, Naan
+Lamb Rogan Josh - Lunch {Medium Hot}, Papadum
+
+[Restaurant Del Otto]
+Rubber Tire Soup
+Jelly Bean Omelette, Soup on a Stick

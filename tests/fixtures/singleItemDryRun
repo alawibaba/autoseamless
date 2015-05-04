@@ -1,5 +1,5 @@
 url = https://www.seamless.com/food-delivery/login.m
-headers = []
+headers = [('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36')]
 postdata = None
 send_referer = True
 update_url = True
@@ -403,7 +403,7 @@ response:
 
 
 url = https://www.seamless.com/food-delivery/login.m
-headers = [('referer', 'https://www.seamless.com/food-delivery/login.m')]
+headers = [('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36'), ('referer', 'https://www.seamless.com/food-delivery/login.m')]
 postdata = ReturnUrl=%2Ffood-delivery%2Faddress.m&username=OttoLunch&password=OttosStupidPassword
 send_referer = True
 update_url = True
@@ -766,7 +766,7 @@ function ShowConfirmationDialogsIfAny(){
 
 
 url = https://www.seamless.com/UpdateGroupOrder.m?groupOrderId=2168137&vendorLocationId=27732
-headers = [('referer', 'https://www.seamless.com/grouporder.m?SubVendorTypeId=1')]
+headers = [('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36'), ('referer', 'https://www.seamless.com/grouporder.m?SubVendorTypeId=1')]
 postdata = None
 send_referer = True
 update_url = True
@@ -3000,7 +3000,7 @@ function ShowConfirmationDialogsIfAny(){
 
 
 url = https://www.seamless.com/MealsMenuSelectionPopup.m?vendorLocationId=27732&CorporateStep=3&ProductId=8695689&CategoryId=3976807&Price=9.9900&height=360&width=660'
-headers = [('referer', u'https://www.seamless.com/UpdateGroupOrder.m?groupOrderId=2168137&vendorLocationId=27732')]
+headers = [('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36'), ('referer', u'https://www.seamless.com/UpdateGroupOrder.m?groupOrderId=2168137&vendorLocationId=27732')]
 postdata = None
 send_referer = True
 update_url = True
@@ -3364,7 +3364,7 @@ function smartHeight() {
  </script>
 
 url = https://www.seamless.com/Ajax.m
-headers = [('referer', u"https://www.seamless.com/MealsMenuSelectionPopup.m?vendorLocationId=27732&CorporateStep=3&ProductId=8695689&CategoryId=3976807&Price=9.9900&height=360&width=660'")]
+headers = [('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36'), ('referer', u"https://www.seamless.com/MealsMenuSelectionPopup.m?vendorLocationId=27732&CorporateStep=3&ProductId=8695689&CategoryId=3976807&Price=9.9900&height=360&width=660'")]
 postdata = ajaxCommand=29~0&29~0action=Save&29~0orderId=1486559510&29~0minOptions_922933=0&29~0minOptions_922739=0&29~0postAction=Menu&29~0selectedCheckBoxes=&29~0productId=8695689&29~0price=$9.99&29~0addToOrderClicked=&29~0tipAmount=&29~0categoryId=3976807&29~0selectedRadioButtons=abc922741|16002771|abc922741|16002771|&29~0abc922741=16002771&29~0lineId=DEFAULT&29~0minOptions_922741=1&29~0quantity=1
 send_referer = True
 update_url = False

@@ -8,7 +8,7 @@ import urllib2
 import urlparse
 import xml.etree.ElementTree
 
-USER_AGENT = "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36"
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36"
 
 SEAMLESS_LOGIN_URL = "https://www.seamless.com/food-delivery/login.m"
 SEAMLESS_GROUP_ORDER_URL = "https://www.seamless.com/grouporder.m?SubVendorTypeId=1"
@@ -31,7 +31,7 @@ class SeamlessBrowser:
         self.last_url = ""
         self.log = log
 
-    def request(
+    def _request(
             self,
             url,
             headers=[],
@@ -42,7 +42,8 @@ class SeamlessBrowser:
             url = urlparse.urljoin(self.last_url, url)
         if send_referer and self.last_url and self.last_url != "":
             headers = [('referer', self.last_url)] + headers
-        self.url_opener.addheaders = [('User-agent', self.ua)] + headers
+        headers = [('User-Agent', self.ua)] + headers
+        self.url_opener.addheaders = headers
         if update_url:
             self.last_url = url
         response = self.url_opener.open(url, postdata).read()
@@ -56,8 +57,8 @@ class SeamlessBrowser:
         return response
 
     def login(self, login_credentials):
-        self.request(SEAMLESS_LOGIN_URL)
-        group_order = self.request(
+        self._request(SEAMLESS_LOGIN_URL)
+        group_order = self._request(
             SEAMLESS_LOGIN_URL,
             postdata="ReturnUrl=%2Ffood-delivery%2Faddress.m&" +
             login_credentials)
@@ -92,7 +93,7 @@ class SeamlessBrowser:
         desired_restaurant = desired_restaurant[0]['href']
 
         self.last_url = SEAMLESS_GROUP_ORDER_URL
-        restaurant_page = self.request(desired_restaurant)
+        restaurant_page = self._request(desired_restaurant)
         parsed_restaurant_page = BeautifulSoup.BeautifulSoup(restaurant_page)
 
         user_id_find = parsed_restaurant_page('input', id='tagUserId')
@@ -136,7 +137,7 @@ class SeamlessBrowser:
             return False
         item_url = match.group()
 
-        item_page = self.request(item_url)
+        item_page = self._request(item_url)
         parsed_item_page = BeautifulSoup.BeautifulSoup(item_page)
 
         form_defaults = {} ; all_options = {}
@@ -219,7 +220,7 @@ class SeamlessBrowser:
             self.order_id) + "&".join(
             ["29~0%s=%s" % (key, options[key]) for key in options.keys()])
 
-        add_item_response = self.request(
+        add_item_response = self._request(
             SEAMLESS_AJAX_URL,
             postdata=pdata,
             update_url=False)
@@ -245,7 +246,7 @@ class SeamlessBrowser:
 
     def get_order_summary(self):
         pdata = "ajaxCommand=74~1&74~1CssClass=OrderStep3&74~1orderId=%s&74~1action=Save" % self.order_id
-        summary_response = self.request(
+        summary_response = self._request(
             SEAMLESS_AJAX_URL,
             postdata=pdata,
             update_url=False)
@@ -264,7 +265,7 @@ class SeamlessBrowser:
         pdata = "goToCheckout=NO&TotalAlloc=%s00&LineId=&saveFavoriteCommand=Checkout.m&WhichPage=Meals&favoriteNameOriginal=&firstCheckOut=Y&acceptedBudgetWarning=N&AcceptedWarnings=N&acceptedFavoriteWarning=N&FavoriteSaved=N&UserSearchType=&ShowAddUser=N&deliveryType=Delivery&EcoToGoOrderId=%s&EcoToGoUserId=%s&OverageAllocationAmt=0&InfoPopupfavorite_name=&InfoPopupfavorite_saveType=&InfoPopupfavorite_orderId=%s&AllocationAmt1=%s&FirstName=&LastName=&NewAllocationAmt=&allocCount=1&totalAllocated=$%s&AllocationComment=&typeOfCreditCard=&creditCardNumber=&CCExpireMonth=1&CCExpireYear=%d&creditCardZipCode=&CreditCardCVV=&saveCreditCardInfo=&ccClicked=no&ccTextChange=no&savedCCNumber=&savedCCType=&currentType=&OrderIdClicked=%s&FloorRoom=9&phone_number=%s&DeliveryComment=&EcoToGoOrder=Y&InfoPopup_name=Namethisfavorite&favoriteSaveMode=successWithOrderingMeals" % (
             alloc, self.order_id, self.user_id, self.order_id, alloc, alloc, year, self.order_id, phone_number)
 
-        checkout_response = self.request(
+        checkout_response = self._request(
             SEAMLESS_CHECKOUT_URL,
             postdata=pdata,
             update_url=False)
