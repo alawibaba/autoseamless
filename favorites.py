@@ -39,7 +39,14 @@ def parse_favorites(filename):
 
 
 class FavoritesSelector(selector.Selector):
+    """Selector that selects restaurant, items, and options from a favorites
+    file, the format of which is compact, elegant, profound, sublime."""
     def __init__(self, fname):
+        """Constructor.
+
+        Arguments:
+        fname -- Filename of the file that contains the favorites.
+        """
         self.choice = None
         self.selections = parse_favorites(fname)
 
