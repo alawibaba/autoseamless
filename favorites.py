@@ -78,11 +78,12 @@ class FavoritesSelector(selector.Selector):
 
     def item_match(self, items):
         rvalue = []
-        items.sort(lambda x, y: len(x.text)-len(y.text))
+        sorted_items = items[:]
+        sorted_items.sort(lambda x, y: len(x.text)-len(y.text))
         for item_name, options in self.choice:
-            for x in items:
-                if x.text.find(item_name) >= 0:
-                    print "Selected %s" % x.text
-                    rvalue.append((x, self.option_selector(options)))
+            for item in sorted_items:
+                if item.text.find(item_name) >= 0:
+                    print "Selected %s" % item.text
+                    rvalue.append((item, self.option_selector(options)))
                     break
         return rvalue
