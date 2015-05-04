@@ -1,13 +1,47 @@
 #!/usr/bin/python
 
 class Selector:
+    """Abstract class that defines the Selector interface."""
     def restaurant_match(self, restaurant_list):
+        """Which restaurants do we want?
+        
+        Arguments:
+        restaurant_list -- A list of restaurants, given as objects that have a
+                           "text" field which is the name of the restaurant
+                           (as a string).
+        
+        Return-value: A list of elements from restaurant_list.
+        """
         return []
     def item_match(self, item_list):
+        """Which items do we want?
+        
+        Arguments:
+        item_list -- A list of items, given as objects that have a
+                     "text" field which is the name of the item
+                     (as a string).
+        
+        Return-value: A list of tuples of length two. The first element of
+                      each tuple is an element from the item_list, and the
+                      second element is a method that takes a list of
+                      possible options as an argument and returns a
+                      dictionary of choices. Please see the tests for sample
+                      usage.
+        """
         return []
 
 class InteractiveSelector(Selector):
+    """Interactive Selector: Emits the list of restaurants, menu, and options
+    to the console, and uses raw_input to solicit choices from the user."""
     def i_select_basic(self, choices, labels):
+        """Basic interactive selection: select one of a list of items.
+ 
+        Keyword arguments:
+        choices -- The list of objects to select from.
+        labels -- The list of labels of the objects. len(labels) == len(choices)
+
+        Return-value: One of the elements from the choices list.
+        """
         for idx in xrange(len(choices)):
             print idx, labels[idx]
         idx = -1
@@ -19,6 +53,14 @@ class InteractiveSelector(Selector):
                 idx = -1
         return choices[idx]
     def i_select_multi(self, choices, labels):
+        """Select zero or more of a list of items.
+ 
+        Keyword arguments:
+        choices -- The list of objects to select from.
+        labels -- The list of labels of the objects. len(labels) == len(choices)
+
+        Return-value: A list of elements from the choices list (possibly many).
+        """
         for idx in xrange(len(choices)):
             print idx, labels[idx]
         idx = []
@@ -34,6 +76,13 @@ class InteractiveSelector(Selector):
             except KeyError:
                 pass
     def i_options(self, all_options):
+        """Interactive options selector.
+ 
+        Keyword arguments:
+        all_options -- A list of options.
+
+        Return-value: A dictionary indicating which options were chosen.
+        """
         rvalue = {}
         option_groups = {}
         for opt_id in all_options.keys():
@@ -89,7 +138,16 @@ class InteractiveSelector(Selector):
         return [(self.i_select_basic(item_list, map(lambda x: x.text, item_list)), self.i_options)]
 
 class RegexSelector(Selector):
+    """Regex Selector: Selection of restaurants, items, and options via regular
+    expression."""
     def __init__(self, restaurant_re, items_re):
+        """Constructor.
+
+        Arguments:
+        restaurant_re -- regular expression for the restaurant you want.
+        items_re -- A list of tuples, the first element of which is a regular
+                    expression for the item, and the second of which is an
+                    expression for the options."""
         self.restaurant_re = restaurant_re
         self.items_re = items_re
     def restaurant_match(self, restaurant_list):
@@ -99,6 +157,15 @@ class RegexSelector(Selector):
                 rvalue.append(choice)
         return rvalue
     def options_match(self, options_re):
+        """Returns an options matcher.
+ 
+        Keyword arguments:
+        options_re -- A regular expression for the desired options.
+
+        Return-value: A method which takes an options list and returns
+                      a dictionary indicating which options were selected.
+        """
+
         def curry_select(all_options):
             rvalue = {}
             for inp_id in all_options.keys():
