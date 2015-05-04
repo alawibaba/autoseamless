@@ -2,6 +2,7 @@
 
 import mock
 import re
+import sys
 import unittest
 
 import favorites
@@ -48,6 +49,7 @@ class Logger:
 
 class TestSeamlessBrowser(unittest.TestCase):
     def test_login_incorrect(self):
+        sys.stdout = mock.Mock()
         log = Logger()
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \
@@ -62,6 +64,7 @@ class TestSeamlessBrowser(unittest.TestCase):
             ["Selected day is Sunday. Let's see if we need to order anything...",
              'Login incorrect.'])
     def test_too_late(self):
+        sys.stdout = mock.Mock()
         log = Logger()
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \
@@ -76,6 +79,7 @@ class TestSeamlessBrowser(unittest.TestCase):
             ["Selected day is Sunday. Let's see if we need to order anything...",
              "It looks like we either don't order today or it's too late to do so.\nSorry about that!"])
     def test_single_item_dry_run(self):
+        sys.stdout = mock.Mock()
         log = Logger()
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \
@@ -95,6 +99,7 @@ class TestSeamlessBrowser(unittest.TestCase):
              u'Successfully added Cayenne Shrimp Salad',
              'total price = 9.990000'])
     def test_no_items_selected(self):
+        sys.stdout = mock.Mock()
         log = Logger()
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \
@@ -112,13 +117,13 @@ class TestSeamlessBrowser(unittest.TestCase):
             ["Selected day is Thursday. Let's see if we need to order anything...",
              'No items selected!'])
     def test_single_item_over_budget(self):
+        sys.stdout = mock.Mock()
         log = Logger()
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \
             MockUrlOpener(self, "tests/fixtures/singleItemOverBudget")
         interactive_s = selector.InteractiveSelector()
-        with mock.patch('__builtin__.raw_input', side_effect=["0", "44", "", "1"]),\
-             mock.patch('__builtin__.print', return_value=None):
+        with mock.patch('__builtin__.raw_input', side_effect=["0", "44", "", "1"]):
             errorCode = seamless_browser_i.order(
                 "username=OttoLunch&password=OttosStupidPassword",
                 "(617)555-3000",
@@ -132,6 +137,7 @@ class TestSeamlessBrowser(unittest.TestCase):
              'Looks like the order failed for some reason -- probably exceeded the meal allowance.',
              ''])
     def test_incorrect_sum(self):
+        sys.stdout = mock.Mock()
         log = Logger()
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \
@@ -155,6 +161,7 @@ class TestSeamlessBrowser(unittest.TestCase):
              'Looks like the order failed for some reason -- probably exceeded the meal allowance.',
              u'The sum of all allocations must total the order total.  Please correct the allocation amounts and try again.'])
     def test_multiple_items_dry_run(self):
+        sys.stdout = mock.Mock()
         log = Logger()
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \
@@ -175,6 +182,7 @@ class TestSeamlessBrowser(unittest.TestCase):
              u'Successfully added Chips with Salsa',
              'total price = 9.740000'])
     def test_multiple_items_over_budget(self):
+        sys.stdout = mock.Mock()
         log = Logger()
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \
@@ -196,6 +204,7 @@ class TestSeamlessBrowser(unittest.TestCase):
              'Looks like the order failed for some reason -- probably exceeded the meal allowance.',
              ''])
     def test_multiple_items_successful(self):
+        sys.stdout = mock.Mock()
         log = Logger()
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \

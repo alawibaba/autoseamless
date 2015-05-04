@@ -2,6 +2,7 @@
 
 import mock
 import re
+import sys
 import unittest
 
 import selector
@@ -15,14 +16,14 @@ class MockChoice:
 
 class TestInteractiveSelector(unittest.TestCase):
     def test_basic(self):
+        sys.stdout = mock.Mock()
         interactive = selector.InteractiveSelector()
         restaurant_list = [MockChoice("Soups R Us"),
                            MockChoice("Tossed (Post Office Sq.)"),
                            MockChoice("Cahoots"),
                            MockChoice("Sugar & Spice"),
                            MockChoice("Eat At Jumbos")]
-        with mock.patch('__builtin__.raw_input', return_value="1"), \
-             mock.patch('__builtin__.print', return_value=None):
+        with mock.patch('__builtin__.raw_input', return_value="1"):
             self.assertEqual(interactive.restaurant_match(restaurant_list),
                                                           [restaurant_list[1]])
         item_list = [MockChoice("Design Your Own Salad"),
@@ -30,8 +31,7 @@ class TestInteractiveSelector(unittest.TestCase):
                      MockChoice("Chicken Caesar Salad"),
                      MockChoice("Giblets"),
                      MockChoice("Lobster Bisque")]
-        with mock.patch('__builtin__.raw_input', return_value="0"), \
-             mock.patch('__builtin__.print', return_value=None):
+        with mock.patch('__builtin__.raw_input', return_value="0"):
             selected_items = interactive.item_match(item_list)
             self.assertEqual([item for item, option in selected_items],
                              [item_list[0]])
@@ -59,8 +59,7 @@ class TestInteractiveSelector(unittest.TestCase):
                                   "name": "L_3",
                                   "value": "3",
                                   "type": "checkbox"}}
-        with mock.patch('__builtin__.raw_input', side_effect=["0", "0, 3"]), \
-             mock.patch('__builtin__.print', return_value=None):
+        with mock.patch('__builtin__.raw_input', side_effect=["0", "0, 3"]):
             selected_options = selected_items[0][1](mock_options)
             self.assertEqual(selected_options,
                              {"D": "0", "L_0": "0", "L_3": "3"})
@@ -68,6 +67,7 @@ class TestInteractiveSelector(unittest.TestCase):
 
 class TestRegexSelector(unittest.TestCase):
     def test_basic_match(self):
+        sys.stdout = mock.Mock()
         regex_s = selector.RegexSelector(re.compile("Tossed"),
                                          [(re.compile("Cayenne Shrimp Salad"),
                                            re.compile("Dressing Mixed In"))])
@@ -88,6 +88,7 @@ class TestRegexSelector(unittest.TestCase):
         selected_options = selected_items[0][1](mock_options)
         self.assertEqual(selected_options, {"D": "0"})
     def test_multiple_match(self):
+        sys.stdout = mock.Mock()
         regex_s = selector.RegexSelector(re.compile("Tossed|Sugar"),
                                          [(re.compile("Salad"),
                                            re.compile("Mixed In|Lettuce"))])

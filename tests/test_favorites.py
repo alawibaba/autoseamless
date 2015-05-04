@@ -2,6 +2,7 @@
 
 import mock
 import re
+import sys
 import unittest
 
 import favorites
@@ -15,6 +16,7 @@ class MockChoice:
 
 class TestRegexSelector(unittest.TestCase):
     def test_basic_match(self):
+        sys.stdout = mock.Mock()
         favorites_s = favorites.FavoritesSelector("tests/fixtures/favorites.txt")
         restaurant_list = [MockChoice("Viva Burrito"),
                            MockChoice("Sugar & Spice")]
@@ -30,6 +32,7 @@ class TestRegexSelector(unittest.TestCase):
         self.assertEquals(selected_items[1][1], None)
 
     def test_random_selection(self):
+        sys.stdout = mock.Mock()
         favorites_s = favorites.FavoritesSelector("tests/fixtures/favorites.txt")
         restaurant_list = [MockChoice("Viva Burrito"),
                            MockChoice("India Palace")]
@@ -44,6 +47,7 @@ class TestRegexSelector(unittest.TestCase):
             self.assertEqual(selected_restaurants, restaurant_list[1:])
 
     def test_options_selection(self):
+        sys.stdout = mock.Mock()
         favorites_s = favorites.FavoritesSelector("tests/fixtures/favorites.txt")
         restaurant_list = [MockChoice("Jimbo's Soylent Emporium"),
                            MockChoice("India Palace")]
