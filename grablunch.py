@@ -2,17 +2,47 @@
 
 import argparse
 import favorites
+import os
 import random
 import re
 import seamless_browser
 import selector
 import sys
 
+class EnvDefaultArgParser(argparse.ArgumentParser):
+    @staticmethod
+    def get_custom_formatter(env_prefix):
+        class _CustomHelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
+            def _get_help_string(self, action):
+                help = super(_CustomHelpFormatter,
+                        self)._get_help_string(action)
+                if action.dest != 'help':
+                    help += ' [env: %s%s]' % (env_prefix, action.dest.upper())
+                return help
+        return _CustomHelpFormatter
+
+    def __init__(self,
+            env_prefix="",
+            formatter_class=None,
+            **kwargs):
+        self.env_prefix = env_prefix
+        if formatter_class is None:
+            formatter_class = EnvDefaultArgParser.get_custom_formatter(
+                    env_prefix)
+        super(EnvDefaultArgParser, self).__init__(
+                formatter_class=formatter_class, **kwargs)
+
+    def _add_action(self, action):
+        action.default = os.environ.get(
+                "%s%s" % (self.env_prefix, action.dest.upper()),
+                action.default)
+        return super(EnvDefaultArgParser, self)._add_action(action)
+
 if __name__ == "__main__":
     def log(msg):
         print msg
 
-    parser = argparse.ArgumentParser()
+    parser = EnvDefaultArgParser(env_prefix="SEAMLESS_")
     parser.add_argument('--dry_run',
             help='Do a dry run (don\'t actually order).',
             const=True,
