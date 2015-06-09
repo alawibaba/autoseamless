@@ -1,95 +1,128 @@
 import datetime
-import grablunch
+import seamless_browser
 import pdb
 import re
 import requests
+import os
 from urlobject import URLObject
-from flask import Flask, request, url_for
+from flask import Flask, request, session, redirect, escape, url_for
+from flask.ext.sqlalchemy import SQLAlchemy
+from flask.json import JSONEncoder
+from functools import wraps
+
 app = Flask(__name__)
+app.config.from_pyfile('config.py')
+db = SQLAlchemy(app)
 app.debug = True
 
-message_buf = []
-def log(msg):
-    message_buf.append(msg)
-sb = grablunch.SeamlessBrowser(log)
+def log(x):
+    print x
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String())
+    password = db.Column(db.String())
+    favorites = db.Column(db.String())
+    minute = db.Column(db.Integer())
+    disabled = db.Column(db.Boolean())
 
 @app.route("/")
-def list_restaurants():
-    login_credentials = open("piotr").readlines()[0].strip()
-    sb.login(login_credentials)
-    wk = datetime.datetime.now().strftime("%A")
-    restaurant_list = sb.list_restaurants(wk)
-    if not restaurant_list:
-      return "Looks like we don't order today or it's too late to do so!"
-    buf = []
-    for restaurant in restaurant_list:
-        vlid = URLObject(restaurant['href']).query.dict['vendorLocationId']
-        buf.append("<a href='%s'>%s</a>" % (url_for("select_restaurants", id=vlid), restaurant.text))
-    return "<br/>".join(buf)
+def index():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = User.query.filter_by(username=session['username']).first()
+    return '''Welcome %s.<br/><br/>
+<form action=%s method=post>
+Your favorites:<br/><textarea name=favorites cols=80 rows=20>%s</textarea><br/>
+Order time:<br/><input name=minute type=text value=%d:%02d /><br/>
+Don't order tomorrow: <input type=checkbox name=disabled value=True %s /><br/>
+<input type=submit name=save /> <br/>
+</form> <a href="%s">logout</a>''' % (escape(user.username), url_for('update_settings'), user.favorites, user.minute/60, user.minute%60, {True: "checked", False: ""}[user.disabled], url_for('logout'))
 
-def show_menu():
-    buf = []
-    for item in sb.menu:
-        item_url_re = re.compile("MealsMenuSelectionPopup.m[^']*'")
-        match = item_url_re.search(item['href'])
-        if match is None:
-            continue
-        qdict = URLObject(match.group()).query.dict
-        pid = qdict['ProductId']
-        cid = qdict['CategoryId']
-        price = float(qdict['Price'])
-        buf.append((cid, "<tr><td><a href='%s'>%s</a></td><td align=right>$%.2f</td></tr>" % (url_for("get_item_options", id=pid), item.text, price)))
-    buf.sort()
-    return "<table>" + "".join(map(lambda x: x[1], buf)) + "</table>" + "<br/><br/><a href='%s'>Checkout</a>" % url_for("checkout")
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        sb = seamless_browser.SeamlessBrowser(log)
+        if sb.login("username=%s&password=%s" % (username, password)):
+            user = User.query.filter_by(username=username).first()
+            if user is None:
+                user = User(username=username, password=password, favorites=\
+"""#sample favorites file
+[Tossed]
+Design Your Own Salad {Romaine Hearts, Iceberg Lettuce, Corn, Cucumbers, Fresh Peppers, Chopped Tomatoes, Gluten-Free Balsamic Vinaigrette Dressing, Dressing Mixed In, Lobster Bisque}
 
-@app.route("/select_restaurant")
-def select_restaurants():
-    def r_selector(restaurants):
-        return [restaurant for restaurant in restaurants if URLObject(restaurant['href']).query.dict['vendorLocationId'] == request.args['id']]
-    wk = datetime.datetime.now().strftime("%A")
-    if not sb.select_restaurant(wk, r_selector):
-        return "Something went wrong with selecting that restaurant. Sorry!"
-    return show_menu()
+[Sugar & Spice]
+Fish Story
 
-@app.route("/get_item_options")
-def get_item_options():
-    desired_item = [i for i in sb.menu if i['href'].find("ProductId=%s" % request.args['id']) >= 0][0]
-    item_page, parsed_item_page, form_defaults, all_options, radio_buttons, check_boxes = sb.fetch_item_page_options(desired_item)
-    buf = []
-    for optid in all_options:
-        option = all_options[optid]
-        if option['type'] == "hidden":
-            continue
-        if not "label" in option:
-            continue
-        checked = ""
-        try:
-            if form_defaults[option['name']] == option['value']:
-                checked = "checked"
-        except KeyError:
-            pass
-        buf.append((option['name'], "%s <input type=%s name=%s value=%s %s />" % (option['label'], option['type'], option['name'], option['value'], checked)))
-    buf.sort()
-    buf = map(lambda x: x[1], buf)
-    buf.append("<input type=submit value='submit'/>")
-    return "<form method=POST action=%s>" % url_for("add_item_to_order", id=request.args['id']) + "<br/>".join(buf) + "</form>"
+[India Palace]
+Lamb Rogan Josh - Lunch, Raita
 
-@app.route("/add_item_to_order", methods=['POST'])
-def add_item_to_order():
-    desired_item = [i for i in sb.menu if i['href'].find("ProductId=%s" % request.args['id']) >= 0][0]
-    message = ""
-    if sb.add_item_to_order(desired_item, lambda x: request.form.to_dict(True)):
-        message = "Successfully added that item to the order."
-    else:
-        message = "Failed to add that item to the order."
-    return message + "<br/><br/>" + show_menu()
+[Beijing Tokyo]
+Shrimp with Black Bean Sauce Lunch Special
 
-@app.route("/checkout")
-def checkout():
-    global message_buf
-    sb.checkout(None)
-    rvalue = "<br/>".join(message_buf) ; message_buf = []
-    return rvalue
+[Alfredo's Italian Kitchen]
+Homemade Eggplant Parmigiana Sub, Garlic Bread
+
+[Viva Burrito]
+Plain Quesadilla with Salsa Fresca, Chips with Salsa
+
+[Eat at Jumbos]
+Vegetarian Sandwich, French Fries
+
+[Curry Thai]
+Lunch Crab Fried Rice
+
+[Cafe 472]
+Triple Grilled Cheese Panini, Garlic Bread with Cheese
+
+[Thelonious Monkfish]
+Monkfish Fried Rice {Shrimp}, Sticky Rice
+
+[Bailey & Sage]
+Grilled Caprese Sandwich
+
+[B. Good]
+SW19 El Guapo Chicken Sandwich, SD01 Real Fries
+""", minute=595, disabled=False)
+                db.session.add(user)
+                db.session.commit()
+            if user.password != password:
+                user.password = password
+                db.session.commit()
+            session['username'] = username
+            session['password'] = password
+            session.modified = True
+        return redirect(url_for('index'))
+    return '''
+        <form action="" method="post">
+            <p><input type=text name=username />
+            <p><input type=password name=password />
+            <p><input type=submit value=Login />
+        </form>
+    '''
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
+
+@app.route("/update_settings", methods=['POST'])
+def update_settings():
+    if 'username' not in session:
+        #redirect(url_for('login'))
+        abort(401)
+    user = User.query.filter_by(username=session['username']).first()
+    user.favorites = request.form['favorites']
+    user.minute = (lambda x: 60*x[0] + x[1])(map(int, request.form['minute'].split(":")))
+    user.disabled = 'disabled' in request.form
+    db.session.commit()
+    return redirect(url_for('index'))
+
+app.secret_key = "SUPER SECRET" # os.urandom(24)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')

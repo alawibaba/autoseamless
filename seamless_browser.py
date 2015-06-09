@@ -441,3 +441,57 @@ class SeamlessBrowser:
                 return 4
 
         return 0
+
+    def to_json(self):
+        """Emits json-compatible object (a dict, to be precise) that contains the state.
+        It can be loaded again (to restore the seamless_browser to a previous state)
+        via the from_json method.
+
+        This is not well-tested and probably shouldn't be used."""
+        rvalue = {"last_url": self.last_url, \
+                  "cookie_jar": [(c.version, c.name, c.value, c.port, c.port_specified, c.domain, c.domain_specified, c.domain_initial_dot, c.path, c.path_specified, c.secure, c.expires, c.discard, c.comment, c.comment_url, c.rfc2109) for c in self.cookie_jar], \
+                }
+        for attr in ["user_id", "total_price", "order_id"]:
+            try:
+                rvalue[attr] = getattr(self, attr)
+            except AttributeError:
+                pass
+        try:
+            rvalue['group_order_page'] = str(self.parsed_group_order)
+        except AttributeError:
+            pass
+        try:
+            rvalue["menu"] = [(item.text, item['href']) for item in self.menu]
+        except AttributeError:
+            pass
+        return rvalue
+
+    def from_json(self, json):
+        """Absorbs json-compatible object (a dict, to be precise) that contains the state.
+        The argument should have been the output of the to_json method.
+
+        This is not well-tested and probably shouldn't be used.
+
+        Arguments:
+        json -- A dict, output of SeamlessBrowser.to_json, containing the state that you
+                would like to restore.
+        """
+        class MenuItem:
+            def __init__(self, text, href):
+                self.text = text
+                self.href = href
+            def __getitem__(self, key):
+                if key == "href":
+                    return self.href
+                raise KeyError(key)
+        self.last_url = json["last_url"]
+        for c in json["cookie_jar"]:
+            cookie = cookielib.Cookie(*c)
+            self.cookie_jar.set_cookie(cookie)
+        for attr in ["user_id", "total_price", "order_id"]:
+            if attr in json:
+                setattr(self, attr, json[attr])
+        if 'group_order_page' in json:
+            self.parsed_group_order = BeautifulSoup.BeautifulSoup(json['group_order_page'])
+        if 'menu' in json:
+            self.menu = [MenuItem(text, href) for (text, href) in json['menu']]
