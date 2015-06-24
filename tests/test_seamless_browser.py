@@ -166,7 +166,8 @@ class TestSeamlessBrowser(unittest.TestCase):
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \
             MockUrlOpener(self, "tests/fixtures/multipleItemsDryRun")
-        favorites_s = favorites.FavoritesSelector("tests/fixtures/favorites.txt")
+        with open("tests/fixtures/favorites.txt") as f:
+            favorites_s = favorites.FavoritesSelector(f)
         with mock.patch('random.uniform', return_value=0.2):
             errorCode = seamless_browser_i.order(
                 "username=OttoLunch&password=OttosStupidPassword",
@@ -187,7 +188,8 @@ class TestSeamlessBrowser(unittest.TestCase):
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \
             MockUrlOpener(self, "tests/fixtures/multipleItemsOverBudget")
-        favorites_s = favorites.FavoritesSelector("tests/fixtures/favorites.txt")
+        with open("tests/fixtures/favorites.txt") as f:
+            favorites_s = favorites.FavoritesSelector(f)
         with mock.patch('random.uniform', return_value=1.5):
             errorCode = seamless_browser_i.order(
                 "username=OttoLunch&password=OttosStupidPassword",
@@ -209,7 +211,8 @@ class TestSeamlessBrowser(unittest.TestCase):
         seamless_browser_i = seamless_browser.SeamlessBrowser(log)
         seamless_browser_i.url_opener = \
             MockUrlOpener(self, "tests/fixtures/multipleItemsSuccessful")
-        favorites_s = favorites.FavoritesSelector("tests/fixtures/favorites.txt")
+        with open("tests/fixtures/favorites.txt") as f:
+            favorites_s = favorites.FavoritesSelector(f)
         with mock.patch('random.uniform', return_value=2.5):
             errorCode = seamless_browser_i.order(
                 "username=OttoLunch&password=OttosStupidPassword",

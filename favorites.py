@@ -5,50 +5,54 @@ import sys
 
 MEAL_RE = re.compile(r'([^\{\},]+)(?:\{([^\}]*)\}([^\{\},]*))?(?:,|$)')
 
-def parse_favorites(filename):
-    """Parse favorites from the given filename.
+def parse_favorites(f):
+    """Parse favorites from the given object.
 
     Args:
-        filename: Filename to read from.
+        f: An object that supports line iteration (like an open file).
     Returns:
         Dictionary mapping from restaurant name to a list of meals.
     """
-    with open(filename) as f:
-        current_restaurant = None
-        result = {}
-        for raw_line in f:
-            line = raw_line.strip()
-            if line == "":
-                continue
-            elif line.startswith("#"):
-                continue
-            elif line.startswith("[") and line.endswith("]"):
-                current_restaurant = line[1:-1].strip()
-                result[current_restaurant] = []
-                continue
-            # this line is a meal
-            match = MEAL_RE.findall(line)
-            if match is None:
-                raise ValueError("bad line %s" % line)
-            result[current_restaurant].append(
-                [((mpre + mpost).strip(),
-		  [opt.strip() for opt in opts.split(",") if opt.strip() != ''])
-                for mpre, opts, mpost in match])
+    current_restaurant = None
+    result = {}
+    for raw_line in f:
+        line = raw_line.strip()
+        if line == "":
+            continue
+        elif line.startswith("#"):
+            continue
+        elif line.startswith("[") and line.endswith("]"):
+            current_restaurant = line[1:-1].strip()
+            result[current_restaurant] = []
+            continue
+        # this line is a meal
+        match = MEAL_RE.findall(line)
+        if match is None:
+            raise ValueError("bad line %s" % line)
+        result[current_restaurant].append(
+            [((mpre + mpost).strip(),
+                    [opt.strip() for opt in opts.split(",") if opt.strip() != ''])
+                    for mpre, opts, mpost in match])
+    return result
 
-        return result
-
+def print_funct(x):
+    print x
 
 class FavoritesSelector(selector.Selector):
     """Selector that selects restaurant, items, and options from a favorites
     file, the format of which is compact, elegant, profound, sublime."""
-    def __init__(self, fname):
+    def __init__(self, f, log=None):
         """Constructor.
 
         Arguments:
-        fname -- Filename of the file that contains the favorites.
+        f -- An object that supports iteration over its lines (such as an open file).
         """
         self.choice = None
-        self.selections = parse_favorites(fname)
+        self.selections = parse_favorites(f)
+        if log:
+            self.log = log
+        else:
+            self.log = print_funct
 
     def restaurant_match(self, restaurants):
         restaurant_choices = [] ; num_options = 0
@@ -63,7 +67,7 @@ class FavoritesSelector(selector.Selector):
         for c, l in restaurant_choices:
             if idx < len(l):
                 self.choice = l[idx]
-                print "Selected %s" % c.text ; sys.stdout.flush()
+                self.log("Selected %s" % c.text)
                 return [c]
             idx -= len(l)
 
@@ -77,7 +81,7 @@ class FavoritesSelector(selector.Selector):
             for opt in options:
                 for o in order:
                     if full_options_list[o]['label'].find(opt) >= 0:
-                        print "-- %s" % full_options_list[o]['label']
+                        self.log("-- %s" % full_options_list[o]['label'])
                         opt_dict[full_options_list[o]['name']] = full_options_list[o]['value']
                         break
             return opt_dict
@@ -90,7 +94,7 @@ class FavoritesSelector(selector.Selector):
         for item_name, options in self.choice:
             for item in sorted_items:
                 if item.text.find(item_name) >= 0:
-                    print "Selected %s" % item.text
+                    self.log("Selected %s" % item.text)
                     rvalue.append((item, self.option_selector(options)))
                     break
         return rvalue

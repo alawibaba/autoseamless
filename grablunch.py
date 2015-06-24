@@ -90,7 +90,8 @@ if __name__ == "__main__":
     elif args.interactive:
         selector = selector.InteractiveSelector()
     else:
-        selector = favorites.FavoritesSelector(args.favorites)
+        with open(args.favorites) as f:
+            selector = favorites.FavoritesSelector(f)
 
     login_credentials = open(args.credentials).readlines()[0].strip()
     try:

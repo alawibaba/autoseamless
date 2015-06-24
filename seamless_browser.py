@@ -14,6 +14,9 @@ SEAMLESS_LOGIN_URL = "https://www.seamless.com/food-delivery/login.m"
 SEAMLESS_GROUP_ORDER_URL = "https://www.seamless.com/grouporder.m?SubVendorTypeId=1"
 SEAMLESS_AJAX_URL = "https://www.seamless.com/Ajax.m"
 SEAMLESS_CHECKOUT_URL = "https://www.seamless.com/Checkout.m"
+SEAMLESS_CCINFO_URL = "https://www.seamless.com/MyAccount.m?myAccountView=CreditCardInfo"
+SEAMLESS_HISTORY_URL = "https://www.seamless.com/OrderHistory.m"
+SEAMLESS_UPDATE_ACCOUNT_URL = "https://www.seamless.com/UpdateMyAccount.m"
 
 REQUEST_LOG = None
 
@@ -96,6 +99,7 @@ class SeamlessBrowser:
             SEAMLESS_LOGIN_URL,
             postdata="ReturnUrl=%2Ffood-delivery%2Faddress.m&" +
             login_credentials)
+        dbg = open("/tmp/group_order", "w") ; dbg.write(group_order) ; dbg.close()
         parsed_group_order = BeautifulSoup.BeautifulSoup(group_order)
         if parsed_group_order.title.text.startswith("Bad Login"):
             self.log("Login incorrect.")
@@ -495,3 +499,36 @@ class SeamlessBrowser:
             self.parsed_group_order = BeautifulSoup.BeautifulSoup(json['group_order_page'])
         if 'menu' in json:
             self.menu = [MenuItem(text, href) for (text, href) in json['menu']]
+
+    def profile_has_saved_cc(self):
+        """Does the current user have a credit card saved in his/her seamless account?
+        Returns a tuple of len 2. The first memeber of the tuple is a boolean indicating
+        whether or not xe has CC info saved (True if so). The second is the anti-forgery
+        token to update the information (e.g. to delete it).  Call after you've logged
+        in via the 'login' method.
+        """
+        profile_response = self._request(
+            SEAMLESS_CCINFO_URL)
+        parsed_response = BeautifulSoup.BeautifulSoup(profile_response)
+        try:
+            aftoken = parsed_response.findAll("input", attrs={"name": "antiForgeryToken"})[0]['value']
+        except KeyError:
+            return "", False
+        try:
+            return aftoken, len(parsed_response.find(id="OverageCCNumber")['value'].strip()) > 0
+        except KeyError:
+            return aftoken, False
+
+    def delete_saved_cc(self, aftoken):
+        """Deletes saved credit card number (if the user has one).
+
+        Returns True on success, False on failure.
+        """
+        profile_response = self._request(
+            SEAMLESS_UPDATE_ACCOUNT_URL,
+            postdata="antiForgeryToken=%s&myAccountView=CreditCardInfo&CreditCardSecurityCode=&OverageCreditCardSecurityCode=&PrimaryCCNewUsage=0&PrimaryCCType=&PrimaryCCNumber=&PrimaryCCExpMonth=&PrimaryCCExpYear=&CreditCardZipCode=&OverageCCNewUsage=1&OverageCCType=&OverageCCNumber=&OverageCCExpMonth=&OverageCCExpYear=&OverageCreditCardZipCode=" % aftoken)
+        parsed_response = BeautifulSoup.BeautifulSoup(profile_response)
+        try:
+            return parsed_response.find(id="AlertMessage").text.lower().find("success") >= 0
+        except AttributeError:
+            return False
