@@ -1,1 +1,9 @@
 BeautifulSoup==3.2.1
+# No specific versioning known/required yet
+requests
+urlobject
+Flask
+Flask-SQLAlchemy
+# Read the link below for psycopg2 requirements
+# http://initd.org/psycopg/docs/install.html
+psycopg2
